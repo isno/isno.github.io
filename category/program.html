@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>isno的网络日志 Archive </title>
+  <title>isno的网络日志</title>
   <meta name="author" content="isno">
   
 
@@ -35,61 +35,46 @@
     <li >
     <a href="/category/php.html">Php</a>
     </li>
-    <li >
+    <li class="active">
     <a href="/category/program.html">Program</a>
     </li>
 </ul></nav>
   <div id="main">
     <div id="content">
-<div>
-	<article role="article">
-    	<header>
-    		<h1 class="entry-title">Blog Archive</h1>
-    	</header>
+<div class="blog-index">
+  		<article>
+<header>
+      <h1 class="entry-title">
+        <a href="/bson.html">BSON原理解析</a>
+      </h1>
+      <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
+</header>
 
-    	<div id="blog-archives">
-            <h2>2015</h2>
-                    <article>
-                        <h1><a href="/bson.html">BSON原理解析</a></h1>
-                        <time datetime="2015-01-05 16:00:28+08:00" pubdate>
-                            <span class="month">一月</span>
-                            <span class="day">05</span>
-                            <span class="year">2015</span>
-                        </time>
-                        <footer>
-                            <span class="categories">posted in
-                                <a class='category' href='/category/program.html'>program</a>
-                                
-                            </span>
-                        </footer>
-                    </article>
-            <h2>2014</h2>
-                    <article>
-                        <h1><a href="/php-aop.html">aop在php项目上的应用</a></h1>
-                        <time datetime="2014-12-13 10:38:54+08:00" pubdate>
-                            <span class="month">十二月</span>
-                            <span class="day">13</span>
-                            <span class="year">2014</span>
-                        </time>
-                        <footer>
-                            <span class="categories">posted in
-                                <a class='category' href='/category/php.html'>php</a>
-                                
-                            </span>
-                        </footer>
-                    </article>
-	    </div>
-    </article>
-</div>
+  <div class="entry-content"><p>BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!</p>
+<p><strong>1.bson的类型包括基础类型和扩展类型</strong></p>
+<ol>
+<li>基础类型 byte, int32, int64, double(存储时会转换为int64)</li>
+<li>扩展类型包括 map, array, binary data</li>
+</ol>
+<p>bson对每种类型用16进制做了一个归类，以便于转换存储</p>
+<p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
+<p><strong>2.bson的存储结构</strong></p>
+<p>如果说bson是一个document，那么该document是以下结构进行存储</p>
+<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value ...</em></p></div>
+  <footer>
+    <a rel="full-article" href="/bson.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+<div class="pagination">
+
+  <br />
+</div></div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
           <a href="/bson.html">BSON原理解析</a>
-      </li>
-      <li class="post">
-          <a href="/php-aop.html">aop在php项目上的应用</a>
       </li>
     </ul>
   </section>
@@ -112,7 +97,7 @@
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2014-2015  - isno -
+    Copyright &copy;  2015  - isno -
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 <!----></body>

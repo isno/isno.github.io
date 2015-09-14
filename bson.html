@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>isno的网络日志</title>
+  <title>BSON原理解析</title>
   <meta name="author" content="isno">
   
 
@@ -35,18 +35,16 @@
     <li >
     <a href="/category/php.html">Php</a>
     </li>
-    <li >
+    <li class="active">
     <a href="/category/program.html">Program</a>
     </li>
 </ul></nav>
   <div id="main">
     <div id="content">
-<div class="blog-index">
-  		<article>
+<div>
+  <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">
-        <a href="/bson.html">BSON原理解析</a>
-      </h1>
+      <h1 class="entry-title">BSON原理解析</h1>
       <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
 </header>
 
@@ -60,28 +58,60 @@
 <p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
 <p><strong>2.bson的存储结构</strong></p>
 <p>如果说bson是一个document，那么该document是以下结构进行存储</p>
-<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value ...</em></p></div>
-  <footer>
-    <a rel="full-article" href="/bson.html">Read On &crarr;</a>
-  </footer>
-  		</article>
-  		<article>
-<header>
-      <h1 class="entry-title">
-        <a href="/php-aop.html">aop在php项目上的应用</a>
-      </h1>
-      <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
-</header>
+<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value) + byte(0)</em>
+<pre>
+<code class="go">data = {"a":1}
+Println(bson.Marshal(data)) // out  [12 0 0 0 16 97 0 1 0 0 0 0]</code>
+</pre>
+以上面输出为例</p>
+<p>整个结构长度为12byte, 结构类型为16 (16=\x10), element.key 为97， 对应ascii a, 后面的1 0 0 0 为 [4]bye(int32(1))</p>
+<p>解释下1为什么会转换为 1 0 0 0</p>
+<p>一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中<br />
+{00000000...00000001}, 00000001到byte[0], 000...到byte[1]..
+即 byte(1&gt;&gt;0)+ byte(1&gt;&gt;8)+ byte(1&gt;&gt;16)+ byte(1&gt;&gt;24), 解析的时候再进行左移还原</p>
+<p>在bson中 map, array 以子document的形式顺序存在父docuement中
+<pre>
+<code class="go">data = {"a":{"a":1}}
+Println(bson.Marshal(data)) // out  [20 0 0 0 3 97 0 12 0 0 0 16 97 0 1 0 0 0 0 0]</code>
+</pre></p>
+<p><strong>总结来说bson的几个特点</strong></p>
+<ol>
+<li>对比json 增加额外数据结构(binary data), 如果用json, 二进制数据需要通过另外的计算转换为 string</li>
+<li>bson的头部存储了文档的长度，这种方式对节点查找非常方便，不需要载入整个文档，仅对文件进行seek定位就可快速查找！ </li>
+<li>内部类型int, double等都是固定长度存储，针对这种结构修改，数据总的长度不会改变!</li>
+<li>结构转换相对来说会让整个文档体积变的更大(目前存储容量都以GB为单位，大部分应用都可以忽略不计)</li>
+</ol></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time>  <span class="categories">
+    <a class="category" href="/tag/bson.html">bson</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
 
-  <div class="entry-content"><p>我们在谈到设计模式的时候，基本上追求的目标都是都是调用者和被调用者之间的解耦,增强可重用性,以及提高开发效率! 在设计一个复杂项目的时候，如果没有很好的处理主业务与次业务的关系，很容易让程序变的耦合严重，对后续的开发和维护造成一定的成本!</p></div>
-  <footer>
-    <a rel="full-article" href="/php-aop.html">Read On &crarr;</a>
-  </footer>
-  		</article>
-<div class="pagination">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="bson.html" data-title="BSON原理解析" data-url="/bson.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"isno"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
 
-  <br />
-</div></div>
+  </article>
+
+</div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
