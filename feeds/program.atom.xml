@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>isno的网络日志</title><link href="http://www.isno.cn/" rel="alternate"></link><link href="http://www.isno.cn/feeds/program.atom.xml" rel="self"></link><id>http://www.isno.cn/</id><updated>2015-01-05T16:00:28+08:00</updated><entry><title>BSON原理解析</title><link href="http://www.isno.cn/entity/bson.html" rel="alternate"></link><updated>2015-01-05T16:00:28+08:00</updated><author><name>isno</name></author><id>tag:www.isno.cn,2015-01-05:entity/bson.html</id><summary type="html">&lt;p&gt;BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1.bson的类型包括基础类型和扩展类型&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;基础类型 byte, int32, int64, double(存储时会转换为int64)&lt;/li&gt;
+&lt;li&gt;扩展类型包括 map, array, binary data&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;bson对每种类型用16进制做了一个归类，以便于转换存储&lt;/p&gt;
+&lt;p&gt;eg. \x02 =&amp;gt; string, \x03 =&amp;gt; document, x\10=&amp;gt; int32 等等 &lt;a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html"&gt;http://bsonspec.org/spec.html&lt;/a&gt;(官方文档)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2.bson的存储结构&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;如果说bson是一个document，那么该document是以下结构进行存储&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value) + byte(0)&lt;/em&gt;
+&lt;pre&gt;
+&lt;code class="go"&gt;data = {"a":1}
+Println(bson.Marshal(data)) // out  [12 0 0 0 16 97 0 1 0 0 0 0]&lt;/code&gt;
+&lt;/pre&gt;
+以上面输出为例&lt;/p&gt;
+&lt;p&gt;整个结构长度为12byte, 结构类型为16 (16=\x10), element.key 为97， 对应ascii a, 后面的1 0 0 0 为 [4]bye(int32(1))&lt;/p&gt;
+&lt;p&gt;解释下1为什么会转换为 1 0 0 0&lt;/p&gt;
+&lt;p&gt;一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中&lt;br /&gt;
+{00000000...00000001}, 00000001到byte[0], 000...到byte[1]..
+即 byte(1&amp;gt;&amp;gt;0)+ byte(1&amp;gt;&amp;gt;8)+ byte(1&amp;gt;&amp;gt;16)+ byte(1&amp;gt;&amp;gt;24), 解析的时候再进行左移还原&lt;/p&gt;
+&lt;p&gt;在bson中 map, array 以子document的形式顺序存在父docuement中
+&lt;pre&gt;
+&lt;code class="go"&gt;data = {"a":{"a":1}}
+Println(bson.Marshal(data)) // out  [20 0 0 0 3 97 0 12 0 0 0 16 97 0 1 0 0 0 0 0]&lt;/code&gt;
+&lt;/pre&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;总结来说bson的几个特点&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;对比json 增加额外数据结构(binary data), 如果用json, 二进制数据需要通过另外的计算转换为 string&lt;/li&gt;
+&lt;li&gt;bson的头部存储了文档的长度，这种方式对节点查找非常方便，不需要载入整个文档，仅对文件进行seek定位就可快速查找！ &lt;/li&gt;
+&lt;li&gt;内部类型int, double等都是固定长度存储，针对这种结构修改，数据总的长度不会改变!&lt;/li&gt;
+&lt;li&gt;结构转换相对来说会让整个文档体积变的更大(目前存储容量都以GB为单位，大部分应用都可以忽略不计)&lt;/li&gt;
+&lt;/ol&gt;</summary><category term="bson"></category></entry></feed>

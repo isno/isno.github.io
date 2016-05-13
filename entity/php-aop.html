@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>aop在php项目上的应用</title>
+  <meta name="author" content="isno">
+  
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/theme/highlight/styles/sunburst.css">
+  <link href="/favicon.png" rel="icon">
+  <link href="/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+  <script src="/theme/js/modernizr-2.0.js"></script>
+  <script src="/theme/js/ender.js"></script>
+  <script src="/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">isno的网络日志</a></h1>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+
+<ul class="main-navigation">
+    <li >
+    <a href="/category/misc.html">Misc</a>
+    </li>
+    <li class="active">
+    <a href="/category/php.html">Php</a>
+    </li>
+    <li >
+    <a href="/category/program.html">Program</a>
+    </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">aop在php项目上的应用</h1>
+      <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
+</header>
+
+  <div class="entry-content"><p>我们在谈到设计模式的时候，基本上追求的目标都是都是调用者和被调用者之间的解耦,增强可重用性,以及提高开发效率! 在设计一个复杂项目的时候，如果没有很好的处理主业务与次业务的关系，很容易让程序变的耦合严重，对后续的开发和维护造成一定的成本!</p>
+<p>以微博发布流程为例</p>
+<h2>未改进的情况</h2>
+<p><pre>
+<code class="php">
+&lt;?php
+class Entry{
+    function save($title){
+        $this-&gt;db-&gt;save($title);
+        return True;
+    }
+}
+$entry = new Entry();
+$entry-&gt;save();
+// OK，发博文成功
+?&gt;
+</code>
+</pre></p>
+<p>这是一个最基本的发博文代码
+但真实情况不会这么简单，随着业务的不断发展，后续可能需要加上log记录, 权限判断, 面对这样的需求，代码可能会这么写
+<pre>
+<code class="php">
+&lt;?php
+class Auth{
+        function check(){
+                return False;
+        }
+}
+$Auth = New Auth();
+if($Auth-&gt;check()){
+        $Entry = new Entry();
+        $Entry-&gt;save();
+        $Log = new Log();
+        $Log-&gt;save();
+        // OK，发博文成功
+}else{
+        // 发博文失败
+}
+?&gt;
+</code>
+</pre>
+代码稍微有点混乱了，但还是在可接受的范围内!
+业务还在线上跑，不断的发展，后续扩展的子业务也不断增加：统计功能，sphinx全文搜索，第三方推送, 审核功能...</p>
+<p>功能越加越多，需求也越来越变态.. 某某功能需要在发博文之前，某某需要在发博文之后，某某需要控制博文发表, 某某功能需要在权限功能之前</p>
+<p>不难发现，没有一个好的模式随着次业务越来越多，最终代码变的臃肿不堪,难以测试，各种优先级，关系，也带来了各种陷阱..</p>
+<p>不论最开始的开发人员还是后续维护的，看到这种代码无外乎头疼脑裂, 想改善也难以下手
+<img alt="" src="/static/entity.jpg" />
+<em>最终的业务流程图!</em></p>
+<h2>如何改进</h2>
+<p>写程序中最大的两道难题? 一个是解耦，另外一个是变量命名!</p>
+<p>完全解耦不可能，但我们可以利用好的设计模式最大化的降低耦合! </p>
+<p>以上的例子提到了主业务与次业务两个概念，这里说明一下：整个系统的主要功能是发表博文，无论代码如何修改，发博文的业务几乎不变，这就是业务逻辑的主干! 而对于频繁修改的日志，权限，审核等称之为次业务! </p>
+<p>好的设计方式主业务和次业务尽量分开，尽量减少干扰。
+主业务只干自己的事而不必关心任何的次业务，各个次业务相对独立运行, 和其他次业务也不产生耦合!
+我们可以把日志，权限，审核等称做不同的切面！面向切面编程(aop)目标就是:把不同的切面从主业务代码中划分出来，通过这种分类，我们不论对切莫如何修改，对主业务逻辑都不会产生影响!</p>
+<p>从上面的例子来看，切面的切入方式总结起来有三种</p>
+<ul>
+<li><strong>before</strong> 是在所切入方法执行之前执行一段逻辑。 (权限)</li>
+<li><strong>after</strong> 是在所切入方法执行之后执行一段逻辑。 (日志，统计)</li>
+<li><strong>around</strong> 是可以同时在所切入方法的前后执行一段逻辑。 (内容审核等)</li>
+</ul>
+<p>在网上搜索php AOP一些零星的内容，总觉得不尽人意! 根据这些内容，要实际应用起来还挺困难!
+说说在我看来比较完美的实现方式: 利用递归对象链的方式实现PHP AOP!</p>
+<p>对象链比较难解释，这里用图片说明一下
+先看一下 打印对象链的结构体
+<img alt="" src="/static/nup.png" /></p>
+<p>简单来说, 对象链是一个AdviceContainer对象，该对象包含两个属性 1.target 2. advice每一个切面都是一个 AdviceContainer对象, advice 包含了切面的切入方式和方法, target 又是一个 AdviceContainer 对象,一直不断的递归，直到最后一链 主业务类 Entery</p>
+<p>从上面的图可以看出，所有的 target 只有两种形态</p>
+<ol>
+<li>AdviceContainer Object</li>
+<li>Entry Object</li>
+</ol>
+<p>从这种区别中，我们在执行对象链的时候，就可以区分出哪些是切面方法，哪个是主业务类</p>
+<p><img alt="" src="/static/aop.jpg" /></p>
+<p>相比之前的流程图，现在这种处理方式变的非常流畅，支线业务也可以通过配置无缝的切入到主业务之上, 主业务也不用做任何修改!!!</p>
+<p>类库的代码就不再详解,以下为github的类库地址, 可以实现基本不改业务代码的情况下无缝切入(已使用在生产环境)</p>
+<p><a href="https://github.com/isno/php-aop" title="https://github.com/isno/php-aop">https://github.com/isno/php-aop</a></p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time>  <span class="categories">
+    <a class="category" href="/tag/php.html">php</a>
+    <a class="category" href="/tag/aop.html">aop</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="entity/php-aop.html" data-title="aop在php项目上的应用" data-url="/entity/php-aop.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"isno"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="/rxswift.html">RxSwift</a>
+      </li>
+      <li class="post">
+          <a href="/entity/bson.html">BSON原理解析</a>
+      </li>
+      <li class="post">
+          <a href="/entity/php-aop.html">aop在php项目上的应用</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="/category/misc.html">misc</a></li>
+        <li><a href="/category/php.html">php</a></li>
+        <li><a href="/category/program.html">program</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>,    <a href="/tag/aop.html">aop</a>  </section>
+
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2014-2016  - isno -
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+<!----></body>
+<script src="/theme/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</html>

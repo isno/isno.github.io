@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>BSON原理解析</title>
+  <meta name="author" content="isno">
+  
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/theme/highlight/styles/sunburst.css">
+  <link href="/favicon.png" rel="icon">
+  <link href="/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+  <script src="/theme/js/modernizr-2.0.js"></script>
+  <script src="/theme/js/ender.js"></script>
+  <script src="/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">isno的网络日志</a></h1>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+
+<ul class="main-navigation">
+    <li >
+    <a href="/category/misc.html">Misc</a>
+    </li>
+    <li >
+    <a href="/category/php.html">Php</a>
+    </li>
+    <li class="active">
+    <a href="/category/program.html">Program</a>
+    </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">BSON原理解析</h1>
+      <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
+</header>
+
+  <div class="entry-content"><p>BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!</p>
+<p><strong>1.bson的类型包括基础类型和扩展类型</strong></p>
+<ol>
+<li>基础类型 byte, int32, int64, double(存储时会转换为int64)</li>
+<li>扩展类型包括 map, array, binary data</li>
+</ol>
+<p>bson对每种类型用16进制做了一个归类，以便于转换存储</p>
+<p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
+<p><strong>2.bson的存储结构</strong></p>
+<p>如果说bson是一个document，那么该document是以下结构进行存储</p>
+<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value) + byte(0)</em>
+<pre>
+<code class="go">data = {"a":1}
+Println(bson.Marshal(data)) // out  [12 0 0 0 16 97 0 1 0 0 0 0]</code>
+</pre>
+以上面输出为例</p>
+<p>整个结构长度为12byte, 结构类型为16 (16=\x10), element.key 为97， 对应ascii a, 后面的1 0 0 0 为 [4]bye(int32(1))</p>
+<p>解释下1为什么会转换为 1 0 0 0</p>
+<p>一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中<br />
+{00000000...00000001}, 00000001到byte[0], 000...到byte[1]..
+即 byte(1&gt;&gt;0)+ byte(1&gt;&gt;8)+ byte(1&gt;&gt;16)+ byte(1&gt;&gt;24), 解析的时候再进行左移还原</p>
+<p>在bson中 map, array 以子document的形式顺序存在父docuement中
+<pre>
+<code class="go">data = {"a":{"a":1}}
+Println(bson.Marshal(data)) // out  [20 0 0 0 3 97 0 12 0 0 0 16 97 0 1 0 0 0 0 0]</code>
+</pre></p>
+<p><strong>总结来说bson的几个特点</strong></p>
+<ol>
+<li>对比json 增加额外数据结构(binary data), 如果用json, 二进制数据需要通过另外的计算转换为 string</li>
+<li>bson的头部存储了文档的长度，这种方式对节点查找非常方便，不需要载入整个文档，仅对文件进行seek定位就可快速查找！ </li>
+<li>内部类型int, double等都是固定长度存储，针对这种结构修改，数据总的长度不会改变!</li>
+<li>结构转换相对来说会让整个文档体积变的更大(目前存储容量都以GB为单位，大部分应用都可以忽略不计)</li>
+</ol></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time>  <span class="categories">
+    <a class="category" href="/tag/bson.html">bson</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="entity/bson.html" data-title="BSON原理解析" data-url="/entity/bson.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"isno"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="/rxswift.html">RxSwift</a>
+      </li>
+      <li class="post">
+          <a href="/entity/bson.html">BSON原理解析</a>
+      </li>
+      <li class="post">
+          <a href="/entity/php-aop.html">aop在php项目上的应用</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="/category/misc.html">misc</a></li>
+        <li><a href="/category/php.html">php</a></li>
+        <li><a href="/category/program.html">program</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>,    <a href="/tag/aop.html">aop</a>  </section>
+
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2014-2016  - isno -
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+<!----></body>
+<script src="/theme/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</html>
