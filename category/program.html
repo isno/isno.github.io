@@ -45,6 +45,29 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
+      </h1>
+      <p class="meta"><time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time></p>
+</header>
+
+  <div class="entry-content"><h3>起因</h3>
+<p>公司内部负责某个业务的同事发现部分内网请求有概率的失败，查证log发现是DNS解析问题，但在定位问题的时候，故障没法重现，解析均正常。</p>
+<p>讲到这里， 1.出现问题的概率不大（接近十万分之一），2.问题也无法重现, 3.不久之前我们也被运维同事告知DNS服务器压力非常大，随后都装了DNSmqsq。基于这几个因素,估计大部分的同学都会认为是网络抖动造成。但公司这位同事非常负责，一直深究到底，经过不过的抓包分析，终于确定了问题所在</p>
+<h3>问题所在</h3>
+<p><strong><em>原因是DNS服务器为了防范chargen服务的DOS攻击， 关闭了19的 dport和sport（iptables）！
+另外业务服务器本地使用DNSmasq实现了本地DNS解析服务！DNSmasq用的是2.48版本，DNSmqsq有个min_port的配置 (TCP握手本地的资源最小端口)，但在该版本 当未设置min_port的时候，默认为0， 内部建立的TCP 链接时，未判断min_port是否为0，直接取0到65536期间值。（新版本不存在该问题）</em></strong></p>
+<p>显而易见，这种设计碰到服务器关闭19端口，且本地随机到了19端口，握手就会无法建立。 </p>
+<h3>解决方案</h3>
+<p>了解到了问题所在。解决问题也非常容易。
+只要在dnsmasq配置里面添加min_port=1024即可。</p>
+<p>另外如果未使用DNSmasq， 也要确认下面文件配置是否正确 ...</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/dnsmasq-min-port.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/character.html">字符编码的理解</a>
       </h1>
       <p class="meta"><time datetime="2016-08-23T09:51:00+08:00" pubdate>二 23 八月 2016</time></p>
@@ -95,6 +118,9 @@
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
+      </li>
+      <li class="post">
           <a href="/entity/character.html">字符编码的理解</a>
       </li>
       <li class="post">
@@ -114,7 +140,7 @@
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>  </section>
+    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>  </section>
 
 
 

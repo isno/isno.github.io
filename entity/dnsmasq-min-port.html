@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>BSON原理解析</title>
+  <title>一次内网DNS解析故障的总结</title>
   <meta name="author" content="isno">
   
 
@@ -44,56 +44,37 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">BSON原理解析</h1>
-      <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
+      <h1 class="entry-title">一次内网DNS解析故障的总结</h1>
+      <p class="meta"><time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time></p>
 </header>
 
-  <div class="entry-content"><p>BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!</p>
-<p><strong>1.bson的类型包括基础类型和扩展类型</strong></p>
-<ol>
-<li>基础类型 byte, int32, int64, double(存储时会转换为int64)</li>
-<li>扩展类型包括 map, array, binary data</li>
-</ol>
-<p>bson对每种类型用16进制做了一个归类，以便于转换存储</p>
-<p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
-<p><strong>2.bson的存储结构</strong></p>
-<p>如果说bson是一个document，那么该document是以下结构进行存储</p>
-<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value) + byte(0)</em>
-<pre>
-<code class="go">data = {"a":1}
-Println(bson.Marshal(data)) // out  [12 0 0 0 16 97 0 1 0 0 0 0]</code>
-</pre>
-以上面输出为例</p>
-<p>整个结构长度为12byte, 结构类型为16 (16=\x10), element.key 为97， 对应ascii a, 后面的1 0 0 0 为 [4]bye(int32(1))</p>
-<p>解释下1为什么会转换为 1 0 0 0</p>
-<p>一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中<br />
-{00000000...00000001}, 00000001到byte[0], 000...到byte[1]..
-即 byte(1&gt;&gt;0)+ byte(1&gt;&gt;8)+ byte(1&gt;&gt;16)+ byte(1&gt;&gt;24), 解析的时候再进行左移还原</p>
-<p>在bson中 map, array 以子document的形式顺序存在父docuement中
-<pre>
-<code class="go">data = {"a":{"a":1}}
-Println(bson.Marshal(data)) // out  [20 0 0 0 3 97 0 12 0 0 0 16 97 0 1 0 0 0 0 0]</code>
-</pre></p>
-<p><strong>总结来说bson的几个特点</strong></p>
-<ol>
-<li>对比json 增加额外数据结构(binary data), 如果用json, 二进制数据需要通过另外的计算转换为 string</li>
-<li>bson的头部存储了文档的长度，这种方式对节点查找非常方便，不需要载入整个文档，仅对文件进行seek定位就可快速查找！ </li>
-<li>内部类型int, double等都是固定长度存储，针对这种结构修改，数据总的长度不会改变!</li>
-<li>结构转换相对来说会让整个文档体积变的更大(目前存储容量都以GB为单位，大部分应用都可以忽略不计)</li>
-</ol></div>
+  <div class="entry-content"><h3>起因</h3>
+<p>公司内部负责某个业务的同事发现部分内网请求有概率的失败，查证log发现是DNS解析问题，但在定位问题的时候，故障没法重现，解析均正常。</p>
+<p>讲到这里， 1.出现问题的概率不大（接近十万分之一），2.问题也无法重现, 3.不久之前我们也被运维同事告知DNS服务器压力非常大，随后都装了DNSmqsq。基于这几个因素,估计大部分的同学都会认为是网络抖动造成。但公司这位同事非常负责，一直深究到底，经过不过的抓包分析，终于确定了问题所在</p>
+<h3>问题所在</h3>
+<p><strong><em>原因是DNS服务器为了防范chargen服务的DOS攻击， 关闭了19的 dport和sport（iptables）！
+另外业务服务器本地使用DNSmasq实现了本地DNS解析服务！DNSmasq用的是2.48版本，DNSmqsq有个min_port的配置 (TCP握手本地的资源最小端口)，但在该版本 当未设置min_port的时候，默认为0， 内部建立的TCP 链接时，未判断min_port是否为0，直接取0到65536期间值。（新版本不存在该问题）</em></strong></p>
+<p>显而易见，这种设计碰到服务器关闭19端口，且本地随机到了19端口，握手就会无法建立。 </p>
+<h3>解决方案</h3>
+<p>了解到了问题所在。解决问题也非常容易。
+只要在dnsmasq配置里面添加min_port=1024即可。</p>
+<p>另外如果未使用DNSmasq， 也要确认下面文件配置是否正确(默认基本上都在1024 ~ 65535)
+<pre><code class="go">/proc/sys/net/ipv4/ip_local_port_range 
+</code></pre></p>
+<p><u>感叹一下：在几万分之一的错误率下，单方面调查这个问题，最终确定原因，真的非常不容易！</u></p></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
     Posted by <span class="fn">isno</span>
   </span>
-<time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time>  <span class="categories">
-    <a class="category" href="/tag/bson.html">bson</a>
+<time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time>  <span class="categories">
+    <a class="category" href="/tag/dnsmasq.html">dnsmasq</a>
   </span>
 </p><div class="sharing">
 </div>    </footer>
 
 	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/bson.html" data-title="BSON原理解析" data-url="/entity/bson.html"></div>
+	<div class="ds-thread" data-thread-key="entity/dnsmasq-min-port.html" data-title="一次内网DNS解析故障的总结" data-url="/entity/dnsmasq-min-port.html"></div>
 <!-- 多说评论框 end -->
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
