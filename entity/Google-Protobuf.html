@@ -52,7 +52,7 @@
 <p>在一次和同事的技术讨论中，提到了官方的介绍是protobuf对比xml更小更快更灵活。那么既然官方说占用的存储空间较小，在应用中是否还有必要再进行压缩？</p>
 <p>基于以上的疑问，在这里简单分期一下protobuf的原理，在知其所以然的情况下在后期可以更好的应用！</p>
 <h3>存储空间为什么更小？</h3>
-<p><strong><em>1.可变长字节码算法 (varint)</em></strong></p>
+<p><strong><em>可变长字节码算法 (varint)</em></strong></p>
 <p>通常一个普通的int类型，在计算机中占用4个字节，以int127 在计算机中存储二进制流为例
 <pre>
 <code class="go">
@@ -81,7 +81,7 @@ varint(128) = {10000000 10000000}
 </div>    </footer>
 
 	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="Entity/Google-Protobuf.html" data-title="Google Protobuf应用" data-url="/Entity/Google-Protobuf.html"></div>
+	<div class="ds-thread" data-thread-key="entity/google-protobuf.html" data-title="Google Protobuf应用" data-url="/entity/google-protobuf.html"></div>
 <!-- 多说评论框 end -->
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
@@ -111,7 +111,7 @@ var duoshuoQuery = {short_name:"isno"};
           <a href="/entity/character.html">字符编码的理解</a>
       </li>
       <li class="post">
-          <a href="/Entity/Google-Protobuf.html">Google Protobuf应用</a>
+          <a href="/entity/google-protobuf.html">Google Protobuf应用</a>
       </li>
       <li class="post">
           <a href="/entity/bson.html">BSON原理解析</a>
