@@ -45,6 +45,37 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
+      </h1>
+      <p class="meta"><time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time></p>
+</header>
+
+  <div class="entry-content"><p>Protocol Buffer是Google 推出的一种轻便高效的结构化数据交换格式，因轻便高效等特性，公司的项目在数据描述以及传输上大量使用了protobuf作为标准！</p>
+<p>在一次和同事的技术讨论中，提到了官方的介绍是protobuf对比xml更小更快更灵活。那么既然官方说占用的存储空间较小，在应用中是否还有必要再进行压缩？</p>
+<p>基于以上的疑问，在这里简单分析一下protobuf的原理，在知其所以然的情况下在后期可以更好的应用！</p>
+<h3>存储空间为什么更小？</h3>
+<p><strong><em>可变长字节码算法 (varint)</em></strong></p>
+<p>通常一个普通的int类型，在计算机中占用4个字节，以int127 在计算机中存储二进制流为例
+<pre>
+<code class="go">
+binary(127) = {00000000 00000000 00000000 01111111}
+</code>
+</pre>
+以上的例子可以明显的看出，对于不大于128的数字，可以只用一个字节来存储。因字节流是连续的，需要再占用一个字节的高位，最终可完成对int类型的紧凑压缩</p>
+<pre>
+<code class="go">
+varint(127) = {01111111} // 最高位0表示,该字节是一个独立的数字
+// 128的最高位是有效值，所以需要再增加一个字节，最高位1表示 下一个字节还属于该int的有效字节
+varint(128) = {10000000 10000000}
+</code>
+</pre>
+
+<p>根据以上的例子可以看出，根据varint算法可以有效的降低存储空间（缺点：最高位是有效值的还要额外增加一个字节）</p>
+<p>待续....</p></div>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </h1>
       <p class="meta"><time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time></p>
@@ -85,37 +116,6 @@
   <footer>
     <a rel="full-article" href="/entity/character.html">Read On &crarr;</a>
   </footer>
-  		</article>
-  		<article>
-<header>
-      <h1 class="entry-title">
-        <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </h1>
-      <p class="meta"><time datetime="2015-02-13T10:03:00+08:00" pubdate>五 13 二月 2015</time></p>
-</header>
-
-  <div class="entry-content"><p>Protocol Buffer是Google 推出的一种轻便高效的结构化数据交换格式，因轻便高效等特性，公司的项目在数据描述以及传输上大量使用了protobuf作为标准！</p>
-<p>在一次和同事的技术讨论中，提到了官方的介绍是protobuf对比xml更小更快更灵活。那么既然官方说占用的存储空间较小，在应用中是否还有必要再进行压缩？</p>
-<p>基于以上的疑问，在这里简单分析一下protobuf的原理，在知其所以然的情况下在后期可以更好的应用！</p>
-<h3>存储空间为什么更小？</h3>
-<p><strong><em>可变长字节码算法 (varint)</em></strong></p>
-<p>通常一个普通的int类型，在计算机中占用4个字节，以int127 在计算机中存储二进制流为例
-<pre>
-<code class="go">
-binary(127) = {00000000 00000000 00000000 01111111}
-</code>
-</pre>
-以上的例子可以明显的看出，对于不大于128的数字，可以只用一个字节来存储。因字节流是连续的，需要再占用一个字节的高位，最终可完成对int类型的紧凑压缩</p>
-<pre>
-<code class="go">
-varint(127) = {01111111} // 最高位0表示,该字节是一个独立的数字
-// 128的最高位是有效值，所以需要再增加一个字节，最高位1表示 下一个字节还属于该int的有效字节
-varint(128) = {10000000 10000000}
-</code>
-</pre>
-
-<p>根据以上的例子可以看出，根据varint算法可以有效的降低存储空间（缺点：最高位是有效值的还要额外增加一个字节）</p>
-<p>待续....</p></div>
   		</article>
   		<article>
 <header>
@@ -162,13 +162,13 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
+      </li>
+      <li class="post">
           <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
       <li class="post">
           <a href="/entity/character.html">字符编码的理解</a>
-      </li>
-      <li class="post">
-          <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
       </li>
       <li class="post">
           <a href="/entity/bson.html">BSON原理解析</a>
@@ -197,7 +197,7 @@ varint(128) = {10000000 10000000}
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2014-2016  - isno -
+    Copyright &copy;  2014-2017  - isno -
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 <!----></body>
