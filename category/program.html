@@ -45,6 +45,38 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
+      </h1>
+      <p class="meta"><time datetime="2017-04-03T17:37:00+08:00" pubdate>一 03 四月 2017</time></p>
+</header>
+
+  <div class="entry-content"><h2><em>任务系统</em></h2>
+<h4>一.消息队列</h4>
+<p>以Redis的List和Set结构为基础，转化ActiveMQ为内部消息队列！
+List保持activeMQ的优先级，程序的阻塞，Set辅助实现队列数据唯一性！
+<pre>
+<code class="python">
+class Queue:
+    def pop(self):
+        entity_id = self.redis.lpop("queue")
+        self.redis.srem("sets", entity_id)
+        return entity_id
+    def push(self, entity_id):
+        if self.redis.sismember("sets", entity_id):
+            return
+        self.redis.sadd("sets", entity_id)
+        self.redis.rpush("queue", entity_id)
+</code>
+</pre></p>
+<p><strong>测试实例</strong></p>
+<p>macbook i5 2 ...</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/GraphQL-API-Service.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
       </h1>
       <p class="meta"><time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time></p>
@@ -149,6 +181,9 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
+      </li>
+      <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
       </li>
       <li class="post">
@@ -174,7 +209,7 @@ varint(128) = {10000000 10000000}
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>一次内网DNS解析故障的总结</title>
+  <title>API后端架构改造分析</title>
   <meta name="author" content="isno">
   
 
@@ -44,37 +44,87 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">一次内网DNS解析故障的总结</h1>
-      <p class="meta"><time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time></p>
+      <h1 class="entry-title">API后端架构改造分析</h1>
+      <p class="meta"><time datetime="2017-04-03T17:37:00+08:00" pubdate>一 03 四月 2017</time></p>
 </header>
 
-  <div class="entry-content"><h3>起因</h3>
-<p>公司内部负责某个业务的同事发现部分内网请求有概率的失败，查证log发现是DNS解析问题，但在定位问题的时候，故障没法重现，解析均正常。</p>
-<p>讲到这里， 1.出现问题的概率不大（接近十万分之一），2.问题也无法重现, 3.不久之前我们也被运维同事告知DNS服务器压力非常大，随后都装了DNSmqsq。基于这几个因素,估计大部分的同学都会认为是网络抖动造成。但公司这位同事非常负责，一直深究到底，经过不过的抓包分析，终于确定了问题所在</p>
-<h3>问题所在</h3>
-<p><strong><em>原因是DNS服务器为了防范chargen服务的DOS攻击， 关闭了19的 dport和sport（iptables）！
-另外业务服务器本地使用DNSmasq实现了本地DNS解析服务！DNSmasq用的是2.48版本，DNSmqsq有个min_port的配置 (TCP握手本地的资源最小端口)，但在该版本 当未设置min_port的时候，默认为0， 内部建立的TCP 链接时，未判断min_port是否为0，直接取0到65536期间值。（新版本不存在该问题）</em></strong></p>
-<p>显而易见，这种设计碰到服务器关闭19端口，且本地随机到了19端口，握手就会无法建立。 </p>
-<h3>解决方案</h3>
-<p>了解到了问题所在。解决问题也非常容易。
-只要在dnsmasq配置里面添加min_port=1024即可。</p>
-<p>另外如果未使用DNSmasq， 也要确认下面文件配置是否正确(默认基本上都在1024 ~ 65535)
-<pre><code class="go">/proc/sys/net/ipv4/ip_local_port_range 
-</code></pre></p>
-<p><u>感叹一下：在几万分之一的错误率下，单方面调查这个问题，最终确定原因，真的非常不容易！</u></p></div>
+  <div class="entry-content"><h2><em>任务系统</em></h2>
+<h4>一.消息队列</h4>
+<p>以Redis的List和Set结构为基础，转化ActiveMQ为内部消息队列！
+List保持activeMQ的优先级，程序的阻塞，Set辅助实现队列数据唯一性！
+<pre>
+<code class="python">
+class Queue:
+    def pop(self):
+        entity_id = self.redis.lpop("queue")
+        self.redis.srem("sets", entity_id)
+        return entity_id
+    def push(self, entity_id):
+        if self.redis.sismember("sets", entity_id):
+            return
+        self.redis.sadd("sets", entity_id)
+        self.redis.rpush("queue", entity_id)
+</code>
+</pre></p>
+<p><strong>测试实例</strong></p>
+<p>macbook i5 2.9 16G内存
+push 10万条数据 11132/秒,共执行8.983s， pop10万条数据， 5302/秒 共执行18.858s！</p>
+<h4>二.任务处理</h4>
+<p>由自建任务系统改造为 以celery为基础的分布式任务系统！</p>
+<p>技术方案 Celery调度任务时以rabbitMQ为载体</p>
+<p>方案优点：</p>
+<ul>
+<li>轻松创建分布式的 Service Provider</li>
+<li>高可靠性 利用消息队列的durable和ack 可有效降低消息丢失等问题</li>
+<li>系统友好 利用 flower 提供的管理工具 轻松管理 worker</li>
+</ul>
+<p><img alt="" src="/static/worker.png" /></p>
+<h2><em>GraphQL的思路</em></h2>
+<p>GraphQL使用 Schema 来描述数据。并通过制定和实现 GraphQL 规范定义了支持Schema查询的DSQL!</p>
+<p>Schema 帮助将复杂的业务模型数据抽象拆分成细粒度的基础数据结构，而 DSQL 的实现则赋予了前端开发者自由组织和定制请求数据的能力。</p>
+<p>这种系统设计的方式，为客户端提供了非常灵活的调用！</p>
+<p>GraphQL的执行流程 （query映射为扩展开发）
+<img alt="" src="/static/service.png" /></p>
+<p>Schema视频数据样例
+<pre>
+<code class="python">
+var Episode = graphql.NewObject(graphql.ObjectConfig{
+    Name: "episode",
+    Fields: graphql.Fields{
+        "entity_id": &amp;graphql.Field{
+            Type:        graphql.Int,
+            Description: "qipu_id",
+        },
+        "title": &amp;graphql.Field{
+            Type:        graphql.String,
+            Description: "episode title",
+        },
+        Resolve: resolvers.GetEpisode, # episode 具体实现方法
+    }})
+</code>
+</pre></p>
+<h2><em>应用</em></h2>
+<p>目前适用golang的GraphQL库为<a href="https://github.com/graphql-go/graphql">graphql-go</a></p>
+<p>配合mongodb， 在本机进行简单的ab测试 </p>
+<p>Macbook i5 2.9 16G内存</p>
+<p>QPS:3296  每次请求45.504ms</p>
+<p>测试代码
+<a href="https://github.com/isno/graphql-golang-mongodb">https://github.com/isno/graphql-golang-mongodb</a></p></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
     Posted by <span class="fn">isno</span>
   </span>
-<time datetime="2016-09-05T18:15:00+08:00" pubdate>一 05 九月 2016</time>  <span class="categories">
-    <a class="category" href="/tag/dnsmasq.html">dnsmasq</a>
+<time datetime="2017-04-03T17:37:00+08:00" pubdate>一 03 四月 2017</time>  <span class="categories">
+    <a class="category" href="/tag/redis.html">redis</a>
+    <a class="category" href="/tag/graphql.html">graphQL</a>
+    <a class="category" href="/tag/golang.html">golang</a>
   </span>
 </p><div class="sharing">
 </div>    </footer>
 
 	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/dnsmasq-min-port.html" data-title="一次内网DNS解析故障的总结" data-url="/entity/dnsmasq-min-port.html"></div>
+	<div class="ds-thread" data-thread-key="entity/GraphQL-API-Service.html" data-title="API后端架构改造分析" data-url="/entity/GraphQL-API-Service.html"></div>
 <!-- 多说评论框 end -->
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
