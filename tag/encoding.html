@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>isno的网络日志</title>
+  <title>isno的网络日志 - encoding</title>
   <meta name="author" content="isno">
   
 
@@ -41,28 +41,39 @@
 </ul></nav>
   <div id="main">
     <div id="content">
-<ul>
-    <li><a href="/category/php.html">php</a></li>
-    <li><a href="/category/program.html">program</a></li>
-</ul>
+<div class="blog-index">
+  		<article>
+<header>
+      <h1 class="entry-title">
+        <a href="/entity/complement.html">补码的原理</a>
+      </h1>
+      <p class="meta"><time datetime="2018-03-11T19:35:00+08:00" pubdate>日 11 三月 2018</time></p>
+</header>
+
+  <div class="entry-content"><p>在计算机系统中，为了区别正负数，采用最高位表示符号(正负)</p>
+<p>以8进制为例，如 1D = 0000 0001，-1D = 1000 0001。</p>
+<p>采用这种方式做加法没有问题，但做减法时如 1D+（-1D） = 0000 0001 + 1000 0001 = 10000010（-2D） </p>
+<p><strong>结果明显不正确!!!</strong></p>
+<p>为了解决这种问题，在计算机系统中提出了补码的概念！</p>
+<p>解释补码以时钟校时为例，假如正确的时间是3点，而时钟的时针指向6点，为了校准时间，有两种操作方式<em>（时钟为12进制）</em></p>
+<p>1.时针倒拨3小时 6-3 = 3</p>
+<p>2.时针顺播9小时 6+9 = 3</p>
+<p>在用第二种方式操作时，时针经过12点自动清除12， 从零重新计时</p>
+<p>即 6+9 =（12）+3 = （自动丢失）+3 ...</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/complement.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+<div class="pagination">
+
+  <br />
+</div></div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
           <a href="/entity/complement.html">补码的原理</a>
-      </li>
-      <li class="post">
-          <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
-      </li>
-      <li class="post">
-          <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
-      </li>
-      <li class="post">
-          <a href="/entity/character.html">字符编码的理解</a>
       </li>
     </ul>
   </section>
@@ -85,7 +96,7 @@
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2014-2018  - isno -
+    Copyright &copy;  2018  - isno -
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 <!----></body>
