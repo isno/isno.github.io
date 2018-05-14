@@ -45,6 +45,38 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统</a>
+      </h1>
+      <p class="meta"><time datetime="2018-05-11T10:17:00+08:00" pubdate>五 11 五月 2018</time></p>
+</header>
+
+  <div class="entry-content"><blockquote>
+<p>前言：本文主要由两篇章构成：分布式一致性篇以及存储结构篇。从一致性理论以及存储引擎实现分析讲起，到最后总结开发出一套高性能最终一致性分布式NoSQL系统</p>
+</blockquote>
+<h2>分布式背景</h2>
+<p>当我们的生产线提供一个数据服务时，大多情况下我们都会遇到以下的几个问题！</p>
+<ul>
+<li>业务不断的发展，单台服务器不足以支撑所有的网络请求</li>
+<li>服务器宕机时，如何确保服务可用</li>
+<li>服务器宕机时，如何保证数据的完整性</li>
+</ul>
+<p>基于以上的几个问题，在不同的时代有不同的解决方案。</p>
+<h4>前PC时代:集中式</h4>
+<p>在前PC时代（可以认为是2000年以前），成熟的方案是集中依靠大型机解决这种问题。从60年代的IBM System/360到z990、z14 该类的大型机具有超高稳定、超高性能，但这种方案存在明显的缺点：价格以及维护成本巨大（高端的大型机售价可达亿元，还要有配套的各种软硬件), 通常也只有政府、金融等机构才有能力采用这种方案。</p>
+<h4>后PC时代：分布式</h4>
+<p>随着PC机的性能不断发展以及互联网的兴起，在维护成本的前提下，采用分布式成为通用的解决方案， 这种方案的优点是PC机性比价较高，有大量的开源解决方案</p>
+<p>从单台服务器过渡到多台服务器，缺乏全局时钟以及多台计算机对等管理让分布式遇到空间和时间的多种问题挑战！</p>
+<h3>从集中式到分布式面临的挑战</h3>
+<p>基于分布式的这种机制，从面临至今就面对诸多的问题和挑战，简单罗列一下比较典型和重要的问题。</p>
+<h5>1.通信异常问题</h5>
+<p>从单机过渡到多台机器，必然引入系统网络 ...</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/distributed-consistency.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/complement.html">补码的原理</a>
       </h1>
       <p class="meta"><time datetime="2018-03-11T19:35:00+08:00" pubdate>日 11 三月 2018</time></p>
@@ -197,7 +229,7 @@ varint(128) = {10000000 10000000}
   		<article>
 <header>
       <h1 class="entry-title">
-        <a href="/entity/php-aop.html">aop在php项目上的应用</a>
+        <a href="/entity/php-aop.html">AOP在php项目上的应用</a>
       </h1>
       <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
 </header>
@@ -216,6 +248,9 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统</a>
+      </li>
+      <li class="post">
           <a href="/entity/complement.html">补码的原理</a>
       </li>
       <li class="post">
@@ -226,9 +261,6 @@ varint(128) = {10000000 10000000}
       </li>
       <li class="post">
           <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
-      </li>
-      <li class="post">
-          <a href="/entity/character.html">字符编码的理解</a>
       </li>
     </ul>
   </section>
@@ -244,7 +276,7 @@ varint(128) = {10000000 10000000}
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

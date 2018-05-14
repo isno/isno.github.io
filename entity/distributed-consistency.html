@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>一.构建分布式一致性存储系统</title>
+  <meta name="author" content="isno">
+  
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/theme/highlight/styles/sunburst.css">
+  <link href="/favicon.png" rel="icon">
+  <link href="/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+  <script src="/theme/js/modernizr-2.0.js"></script>
+  <script src="/theme/js/ender.js"></script>
+  <script src="/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">isno的网络日志</a></h1>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+
+<ul class="main-navigation">
+    <li >
+    <a href="/category/php.html">Php</a>
+    </li>
+    <li class="active">
+    <a href="/category/program.html">Program</a>
+    </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">一.构建分布式一致性存储系统</h1>
+      <p class="meta"><time datetime="2018-05-11T10:17:00+08:00" pubdate>五 11 五月 2018</time></p>
+</header>
+
+  <div class="entry-content"><blockquote>
+<p>前言：本文主要由两篇章构成：分布式一致性篇以及存储结构篇。从一致性理论以及存储引擎实现分析讲起，到最后总结开发出一套高性能最终一致性分布式NoSQL系统</p>
+</blockquote>
+<h2>分布式背景</h2>
+<p>当我们的生产线提供一个数据服务时，大多情况下我们都会遇到以下的几个问题！</p>
+<ul>
+<li>业务不断的发展，单台服务器不足以支撑所有的网络请求</li>
+<li>服务器宕机时，如何确保服务可用</li>
+<li>服务器宕机时，如何保证数据的完整性</li>
+</ul>
+<p>基于以上的几个问题，在不同的时代有不同的解决方案。</p>
+<h4>前PC时代:集中式</h4>
+<p>在前PC时代（可以认为是2000年以前），成熟的方案是集中依靠大型机解决这种问题。从60年代的IBM System/360到z990、z14 该类的大型机具有超高稳定、超高性能，但这种方案存在明显的缺点：价格以及维护成本巨大（高端的大型机售价可达亿元，还要有配套的各种软硬件), 通常也只有政府、金融等机构才有能力采用这种方案。</p>
+<h4>后PC时代：分布式</h4>
+<p>随着PC机的性能不断发展以及互联网的兴起，在维护成本的前提下，采用分布式成为通用的解决方案， 这种方案的优点是PC机性比价较高，有大量的开源解决方案</p>
+<p>从单台服务器过渡到多台服务器，缺乏全局时钟以及多台计算机对等管理让分布式遇到空间和时间的多种问题挑战！</p>
+<h3>从集中式到分布式面临的挑战</h3>
+<p>基于分布式的这种机制，从面临至今就面对诸多的问题和挑战，简单罗列一下比较典型和重要的问题。</p>
+<h5>1.通信异常问题</h5>
+<p>从单机过渡到多台机器，必然引入系统网络，由于网络本身的不可靠，由此又额外引入了多种问题。</p>
+<ol>
+<li>网络不可靠: 网络线路、DNS、路由器存在不可用风险</li>
+<li>数据传输延迟: 单机内存访问以纳秒为单位，网络访问延迟以毫秒为单位。</li>
+</ol>
+<h5>2.网络区分问题</h5>
+<p>当网络异常的时，分布式部分节点延迟不断增大，最终导致部分节点可用，部分节点不可用，一个正常的分布式系统由此产生两种网络区分状态产生多个子子集群， 这也是俗称的网络脑裂！</p>
+<h5>3.三态问题</h5>
+<p>在传统的单机系统中，一个函数调用之后，有明确的两种状态：成功或者失败，到过渡到分布式，由于网络不可靠，即生成了特有的三态概念：成功、失败、超时！</p>
+<p>超时又分为不同的情况：</p>
+<ul>
+<li>请求没有发送到接收方</li>
+<li>请求方接受到消息，并成功处理，但反馈给发消息方时失败！</li>
+</ul>
+<h5>4.故障率问题</h5>
+<p>组成分布式系统的节点存在宕机或者僵死现象，机器的故障率不可避免（包括大型机存在故障率）</p>
+<h3>分布式事务以及一致性</h3>
+<p>上面讲到了从单点分布式遇到的问题，下面再重点了解分布式事务处理以及数据一致性遇到的挑战！</p>
+<p>以银行转账为例：A账户向C账户转账30元</p>
+<p>RDBMS事务的处理顺序流程为以下</p>
+<p>读取A账户余额 &gt;  对A账户减30元 &gt; 结果存回A账户 &gt; 读取B账户余额 &gt; B账户加30元 &gt; 结果存回B账户</p>
+<p><em>延伸：从银行转账的例子可以看出，转账的操作需要确认几个要素：结果始终正确、转账期间A账户不应该被被读等等！</em></p>
+<p>事务应该具有以下特征：事务四要素ACID</p>
+<p><strong>原子性 Atomicity</strong></p>
+<p>一个事务的全部子操作在执行过程中只有两种情况：全部成功、全部失败</p>
+<p><strong>一致性 Consistency</strong></p>
+<p>事务执行的结果必须是从一个一致性状态到另外一个一致性状态！（当一个数据库系统在执行事务时突然奔溃，未完成的事务有部分操作已经写入数据库，这时数据库就处于不一致性错误状态）</p>
+<p><strong>隔离性 Isolation</strong> </p>
+<p>事务的隔离性就是指在并发操作中，不同的事务是相互各类的，一个事务执行过程中，不允许被其他事务干扰。在标准的SQL中，定义了四中隔离级别，不用的隔离级别对事务的处理方式不同</p>
+<p><img alt="事务隔离性级别" src="/static/sql-isolation@2x.png" title="事务隔离性级别" /></p>
+<p><em>A事务从1持续更新到10，B事务 从11更新到20。</em></p>
+<p><strong>持久性 Durability</strong></p>
+<p>一个事务一旦完成，数据库中的数据变更状态是永久性，即使发生系统故障，也能恢复到事务成功时的状态！</p>
+<p>回到银行转账的问题上，在单机中处理事务比较简单，但在一个分布式系统中事务环境会遇到如A账户和B账户不在同一机器，A账户操作成功，但B账户操作失败，种种情况另分布式事务变得异常复杂！</p>
+<h4>数据一致性模型</h4>
+<p>上面谈到了分布式事务面临的问题，结合实际应用情况，银行转账需要严格要求严格执行事务一致性，但其他的一些应用，可能就不那么严格需要一致性，针对不同的应用，数据一致性分为三种模型,每种模型实现的方式，应用的算法理论也不同。</p>
+<ul>
+<li>
+<p><strong>Weak 弱一致性</strong> 
+系统并不保证续进程或者线程的访问都会返回最新的更新过的值。系统在数据写入成功之后，不承诺立即可以读到最新写入的值，也不会具体的承诺多久之后可以读到</p>
+</li>
+<li>
+<p><strong>Eventually 最终一致性</strong>
+当更新操作完成之后，任何多个后续进程或者线程的访问都会返回最新的更新过的值。这种是对用户最友好的，就是用户上一次写什么，下一次就保证能读到什么。根据 CAP 理论，这种实现需要牺牲可用性。</p>
+</li>
+<li>
+<p><strong>Strong 强一致性</strong>
+弱一致性的特定形式。系统保证在没有后续更新的前提下，系统最终返回上一次更新操作的值。在没有故障发生的前提下，不一致窗口的时间主要受通信延迟，系统负载和复制副本的个数影响。DNS 是一个典型的最终一致性系统</p>
+</li>
+</ul>
+<p><u>总结：弱一致性和最终一致性基于异步，控制复杂但具有更好的性能。强一致性基于同步方式，性能较低！</u></p>
+<h2>分布式理论体系</h2>
+<p>如果实现一套严格满足ACID特性的分布式事务，很可能的情况就是可用性和一致性出现
+严重的冲突！
+如何均衡一个兼容可用性和一致性的分布式系统？ 对于这种问题延伸出了诸如 CAP、BASE经典分布式系统理论</p>
+<h3>CAP理论</h3>
+<p>CAP理论证明了一个分布式系统不可能同时满足一致性、可用性、分区容错这三个基本需求，最多只能同时满足两个。</p>
+<p><img alt="CAP" src="/static/cap@2x.png" /></p>
+<h4>CAP理论的应用</h4>
+<p><table>
+    <thead>
+    <tr>
+      <th width="25%">放弃CAP定理</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+        <td>放弃P 分区容错</td>
+        <td>如果希望避免分区容错性问题，非常简单的做法就是就所有的数据（或事务相关的数据）都放在一个分布式的节点上，这样虽然无法保证系统100%不会出错，但至少不会碰到网络分区带来的负面影响。<span style="color:red"> 需要非常注重的一点 放弃P，也就意味着放弃系统的可扩展性，也偏离了分布式设计的目标</span></td>
+    </tr>
+    <tr>
+        <td>放弃A 可用性</td>
+        <td>一旦系统遇到遇到网络分区或者其他故障，受影响的系统需要等待一段时间，在此期间系统无法对外提供服务，既不可用</td>
+    </tr>
+    <tr>
+        <td>放弃C一致性</td>
+        <td>放弃一致性不等于完全不需要数据一致性，如果这样，整个系统的数据没有任何意义，系统也没有任何价值。
+放弃一致性是指放弃强一致性，而保留数据的最终一致性，这样系统虽然无法保证数据实时一致性，但可以承诺，数据最终会达到一致性状态，这里就引入了时间窗口的概念，具体需要多久，取决于系统的设计（主要包括数据在不同副本节点之间复制数据的长短）</td>
+    </tr>
+  </tbody>
+</table></p>
+<p><u><strong>分区容错是分布式系统必然需要面对和解决的问题，因此系统架构师往往需要把精力花在如何根据业务的特点在 一致性和可用性之间寻求平衡!</strong></u></p>
+<h3>BASE理论</h3>
+<p>BASE理论是基于CAP理论的演化。核心思想是 <strong>即使无法做到强一致性，但每个应用都可以根据自身业务特点，采用适当的方式来使系统达到最终一致性</strong>。</p>
+<h4>BASE理论三要素</h4>
+<p><strong>Basically Availiable （基本可用）</strong></p>
+<p>基本可用是指分布式系统在遇到不可预知的故障时，允许损失部分可用性（不等价整个系统不可用）。</p>
+<p>举两个场景案例说明</p>
+<ul>
+<li>响应时间损失：一个搜索正常情况下是0.1s返回结果，但由于故障，响应时间增到到1s</li>
+<li>功能损失：淘宝举行双11时候，由于订单激增，后台无法全部有效的处理，部分订单被引导至 降级页面</li>
+</ul>
+<p><strong>Soft state（软状态）</strong></p>
+<p>软状态也成为弱状态，即允许分布式系统中数据存在中间状态（该状态不会影响整个系统可用性）</p>
+<p><strong>Eventually consistent（最终一致性）</strong></p>
+<p>最终一致性的本质是保证数据基于业务最终达到一致性，而不强调要求强一致性。
+<em>类似比如一个DNS同步，顶级DNS同步到最终各个节点最长时间可能是以小时或者天为单位！</em></p>
+<h3>分布式一致性系统要素</h3>
+<p>总结理论以及具体的业务本身需求，一个分布式系统一致性系统基本会有以下几个要素</p>
+<p><strong>1.容灾能力</strong>
+不存在数据丢失的情况, 节点自动Failover，部分节点宕机也不影响系统整体可用</p>
+<p><strong>2.数据一致性</strong>
+一致性的事务处理 （分弱一致性和强一致性）</p>
+<p><strong>3.分布式系统的性能</strong>
+吞吐量、响应时间等</p>
+<h2>一致性协议</h2>
+<p>为了解决分布式一致性的问题，涌现一大批经典的一致性协议算法，其中比较出名的是两阶段提交、三阶段提交、以及Paxos、Raft等算法！</p>
+<h3>两阶段提交 2PC</h3>
+<p>2PC 即两阶段提交 按照文字的理解就是：事务的执行过程分为两步骤。</p>
+<p>在一个分布式系统中，一个节点可以知道自己本身状态，但无法获知其他节点的状态，为保证事务的ACID特性， 引入<strong>协调者</strong>管理掌控所有的节点（其他节点成为参与者）.</p>
+<p>2PC = 提交事务请求 + 执行事务提交两个阶段</p>
+<p><strong>通俗的案例:婚礼</strong></p>
+<ol>
+<li>牧师分别分新郎、新娘：你是否愿意… 不管生老病死 (阶段一询问)</li>
+<li>新郎新娘分别回答愿意(锁定一生资源)， 牧师就会说： 我宣布你们… (事务提交)</li>
+</ol>
+<p><img alt="2PC" src="/static/2PC@2x.png" /></p>
+<p>两阶段提交的最大问题：如果第一阶段完成后，参与者在第二阶段没有收到决策，
+那么数据节点就会进入“不知所措”的状态，最终Block整个事务</p>
+<p>绝大部分的关系型数据库如MySQL事务，以及跨数据库的事务处理，比如JTA，阿里云GTS均采用2PC理论设计实现。<em>（针对跨数据库事务，在2PC的基础上规范接口协议 即 = XA）</em> </p>
+<p><em>注：我对阿里云GTS并未深入了解，粗知是基于XA并进行优化设计，解耦第一段询问和第二段提交并推翻全局阻塞同步设计，优化为同步+异步组合设计.</em></p>
+<p>总结2PC：原理简单、容易实现，但缺点也非常明显 同步阻塞、单点问题、脑裂、保守（没有完善的容错机制，任何节点失败都会导致整个事务失败）</p>
+<h3>三阶段提交 3PC</h3>
+<p>3PC是2PC的设计改进版，其将二阶段提交协议的“准备阶段”一份为二，形成了CanCommit，PreCommit，DoCommit三个阶段，也增加各阶段的超时处理。</p>
+<p>3PC主要解决的单点故障问题，并减少阻塞，因为一旦参与者无法及时收到来自协调者的信息之后，他会默认执行commit（所以产生新的协调者之后，可以确定事务的状态，这就解决了单点）。而不会一直持有事务资源并处于阻塞状态。</p>
+<p><strong>但是这种机制也会导致数据一致性问题，因为，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</strong></p>
+<p><img alt="3PC" src="/static/3PC@2x.png" /></p>
+<h3>一致性算法 Paxos （面向科学家的协议算法）</h3>
+<p>从2PC和3PC的介绍中，不难看出两者都无法彻底解决数据一致性问题（协调者单点问题，脑裂），那么有没有一种算法可以彻底解决分布式一致性问题，答案是有的，那就是Paxos！</p>
+<p>Paxos类似以议会投票选举的流程来设计，它允许运行宕机故障的异步系统，不要求可靠的消息传递，可容忍消息的丢失、延迟、乱序、以及重复。它利用了大多数机制 保证 2F+1的容错，即 2F+1个节点最多允许F个节点同事出现故障！</p>
+<p><strong>Paxos的几个基本概念</strong></p>
+<p>一.两个操作</p>
+<ul>
+<li>Proposal Value：提案的值</li>
+<li>Proposal Number： 提案编号（不能有冲突）</li>
+</ul>
+<p>二.三个角色</p>
+<ul>
+<li>Proposer：提案发起者 （可以有多个，提案的发起者，将提案发给Acceptor）</li>
+<li>Acceptor: 提案决策者 （超半数投票则通过，否则提案失败）</li>
+<li>Learner：提案学习者 （把确定的提案值同步给未批准的Accepter）</li>
+</ul>
+<p>三.协议过程</p>
+<ul>
+<li>
+<p><strong>准备阶段</strong></p>
+</li>
+<li>
+<p>第一阶段A：Proposer选择一个提议编号N，向所有的Acceptor广播Prepare N请求</p>
+</li>
+<li>
+<p>第二阶段B：Acceptor接收 Prepare请求，若提议编号N 比之前所有的提议都大，则接收提议，否则拒绝</p>
+</li>
+<li>
+<p><strong>接受阶段</strong></p>
+</li>
+<li>
+<p>第二阶段A：</p>
+</li>
+<li>如果没有超过半数的Acceptor响应，提议失败</li>
+<li>
+<p>超过半数的承诺，执行提议，选取提议Value</p>
+</li>
+<li>
+<p>第二阶段B：</p>
+</li>
+<li>Acceptor接受提议后，比对版本号，如果版本号不等于自身记录的版本号，则不接受请求， 相等则写入本地</li>
+</ul>
+<p>Paxos从90年诞生到真正应用，跨隔接近16年的时间，撇开互联网发展，Paxos本身复杂程度以及难以应用也占大部分原因！</p>
+<h4>Paxos应用</h4>
+<p>Google是Paxos应用的先驱， 在06年实现了Chubby（未开源），Chubby的底层一致性实现就是以Paxos算法为基础，实现了一个面向松耦合分布式系统的锁服务，GFS（Google File System）和Big Table等大型系统都是用它来解决分布式协作、元数据存储和Master选举等一些列与分布式锁服务相关的问题。</p>
+<p>在Chubby后续，Yahoo 推出了Zab （Zookeeper分布式算法），至此解决分布式一致性的方案得以在各类场景大规模应用</p>
+<h3>Raft （面向程序员的协议算法）</h3>
+<p>在前面谈过，从Paxos面世到大规模应用跨个16年时间，其中一个原因是Paxos论文过于学术，难以应用实现。</p>
+<p>在13年，Stanford提出了Raft算法，意在取代目前广为使用的Paxos。相比Paxos更容易理解，更容易实现，在Github上搜索基本都有各类的语言实现。</p>
+<p>具体相比Paxos</p>
+<ul>
+<li>它提供一个完整的、实际的基础来进行系统构建，为的是减少开发者的工作；</li>
+<li>它在所有情况下都能保证安全可用；</li>
+<li>它对于常规操作必须高效；</li>
+<li>最重要的目标是：易于理解，它必须使得大多数人能够很容易的理解；</li>
+</ul>
+<h4>Raft一致性算法</h4>
+<p>下面简单概述一下Raft算法。</p>
+<p>通过领导人的方式，Raft将一致性问题分解成以下相对独立的三个子问题</p>
+<ul>
+<li>领导人选举</li>
+<li>日志复制</li>
+<li>安全性</li>
+</ul>
+<h4>领导人选举</h4>
+<p>基于Raft协议组织的集群有三种角色: </p>
+<ol>
+<li>Leader  领袖，处理所有的客户端交互、日志复制，同时只有一个Leader,Leader与Follower有心跳机制</li>
+<li>Follower 群众 被动角色（处理领袖同步的日志）</li>
+<li>Candidate 领袖候选人 （在初始以及Leader出错阶段可以被选举为领袖）</li>
+</ol>
+<p>三种角色的变迁图</p>
+<p><img alt="raft" src="/static/raft-select@2x.png" /></p>
+<h4>领导人投票过程</h4>
+<p>最小的Raft民主集群需要三个参与者才可以投出多数票</p>
+<p><img alt="raft" src="/static/raft-vote@2x.png" /></p>
+<h4>Raft日志复制</h4>
+<p>Raft协议强依赖Leader节点的可用性来确保集群数据的一致性，数据流只能从Leader节点流向Follwer节点</p>
+<p><img alt="raft" src="/static/raft-log@2x.png" /></p>
+<h4>Raft日志复制以及日志安全</h4>
+<p>综合各种情况，Raft规范了六种异常处理机制</p>
+<p><strong>1.数据未到达Leader</strong></p>
+<p><img alt="raft" src="/static/raft-log1@2x.png" /></p>
+<p><strong>2.数据到达Leader，但未同步到Follower</strong></p>
+<p>这个阶段 Leader 挂掉，数据属于未提交状态，Client 不会收到 Ack，会认为超时失败可安全发起重试。Follower 节点上没有该数据，重新选主后 Client 重试重新提交可成功。原来的 Leader 节点恢复后作为 Follower 加入集群重新从当前任期的新 Leader 处同步数据，强制保持和 Leader 数据一致。</p>
+<p><img alt="raft" src="/static/raft-log2@2x.png" /></p>
+<p><strong>3.数据到达 Leader 节点，成功复制到 Follower 所有节点，但还未向 Leader 响应接收</strong></p>
+<p>这个阶段 Leader 挂掉，虽然数据在 Follower 节点处于未提交状态（Uncommitted）但保持一致，重新选出 Leader 后可完成数据提交，此时 Client 由于不知到底提交成功没有，可重试提交。针对这种情况实现内部去重机制</p>
+<p><img alt="raft" src="/static/raft-log3@2x.png" /></p>
+<p><strong>4.数据到达 Leader 节点，成功复制到 Follower 部分节点，但还未向 Leader 响应接收</strong></p>
+<p>这个阶段 Leader 挂掉，数据在 Follower 节点处于未提交状态（Uncommitted）且不一致，Raft 协议要求投票只能投给拥有最新数据的节点。所以拥有最新数据的节点会被选为 Leader 再强制同步数据到 Follower，数据不会丢失并最终一致。
+<img alt="raft" src="/static/raft-log4@2x.png" /></p>
+<p><strong>5.数据到达 Leader 节点，成功复制到 Follower 所有或多数节点，数据在 Leader 处于已提交状态，但在 Follower 处于未提交状态</strong></p>
+<p>流程和3基本一致</p>
+<p><img alt="raft" src="/static/raft-log5@2x.png" /></p>
+<p><strong>6.数据到达 Leader 节点，成功复制到 Follower 所有或多数节点，数据在所有节点都处于已提交状态，但还未响应 Client</strong></p>
+<p>这个阶段 Leader 挂掉，Cluster 内部数据其实已经是一致的，Client 重复重试基于重复数据排除策略对一致性无影响。</p>
+<p><img alt="raft" src="/static/raft-log6@2x.png" /></p>
+<p><strong>7.网络分区产生脑裂，双Leader情况</strong></p>
+<p>网络分区将原先的 Leader 节点和 Follower 节点分隔开，Follower 收不到 Leader 的心跳将发起选举产生新的 Leader。这时就产生了双 Leader，原先的 Leader 独自在一个区，向它提交数据不可能复制到多数节点所以永远提交不成功。向新的 Leader 提交数据可以提交成功，网络恢复后旧的 Leader 发现集群中有更新任期（Term）的新 Leader 则自动降级为 Follower 并从新 Leader 处同步数据达成集群数据一致。</p>
+<h4>Raft应用延伸</h4>
+<p>Raft比较著名的开源方案包括 Mongodb3.4+  Etcd Consul等</p>
+<p>ok,一致性协议理论介绍基本完毕，在后续会继续对存储引擎的设计和理论进行介绍，到最后介绍如何利用这些知识实现一个高可用的分布式一致性存储系统。</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2018-05-11T10:17:00+08:00" pubdate>五 11 五月 2018</time>  <span class="categories">
+    <a class="category" href="/tag/distributed.html">distributed</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="entity/distributed-consistency.html" data-title="一.构建分布式一致性存储系统" data-url="/entity/distributed-consistency.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"isno"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统</a>
+      </li>
+      <li class="post">
+          <a href="/entity/complement.html">补码的原理</a>
+      </li>
+      <li class="post">
+          <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
+      </li>
+      <li class="post">
+          <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
+      </li>
+      <li class="post">
+          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="/category/php.html">php</a></li>
+        <li><a href="/category/program.html">program</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2014-2018  - isno -
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+<!----></body>
+<script src="/theme/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</html>
