@@ -78,13 +78,13 @@ push 10万条数据 11132/秒,共执行8.983s， pop10万条数据， 5302/秒 �
 <li>高可靠性 利用消息队列的durable和ack 可有效降低消息丢失等问题</li>
 <li>系统友好 利用 flower 提供的管理工具 轻松管理 worker</li>
 </ul>
-<p><img alt="" src="/static/worker.png" /></p>
+<p><img alt="" src="/static/worker.png"></p>
 <h2><em>GraphQL的思路</em></h2>
 <p>GraphQL使用 Schema 来描述数据。并通过制定和实现 GraphQL 规范定义了支持Schema查询的DSQL!</p>
 <p>Schema 帮助将复杂的业务模型数据抽象拆分成细粒度的基础数据结构，而 DSQL 的实现则赋予了前端开发者自由组织和定制请求数据的能力。</p>
 <p>这种系统设计的方式，为客户端提供了非常灵活的调用！</p>
 <p>GraphQL的执行流程 （query映射为扩展开发）
-<img alt="" src="/static/service.png" /></p>
+<img alt="" src="/static/service.png"></p>
 <p>Schema视频数据样例
 <pre>
 <code class="python">
@@ -123,22 +123,7 @@ var Episode = graphql.NewObject(graphql.ObjectConfig{
 </p><div class="sharing">
 </div>    </footer>
 
-	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/GraphQL-API-Service.html" data-title="API后端架构改造分析" data-url="/entity/GraphQL-API-Service.html"></div>
-<!-- 多说评论框 end -->
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"isno"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-<!-- 多说公共JS代码 end -->
+	
 
   </article>
 
@@ -147,6 +132,9 @@ var duoshuoQuery = {short_name:"isno"};
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </li>
@@ -158,9 +146,6 @@ var duoshuoQuery = {short_name:"isno"};
       </li>
       <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
     </ul>
   </section>
@@ -176,7 +161,7 @@ var duoshuoQuery = {short_name:"isno"};
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

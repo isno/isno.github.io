@@ -45,6 +45,37 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </h1>
+      <p class="meta"><time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time></p>
+</header>
+
+  <div class="entry-content"><p>Map是一种常见的数据结构，目前在主流语言中基本都自带实现！比如Golang中的Map，Python中的Dict,PHP中的 Array等</p>
+<p>语言层的map基本都是以哈希表来实现，哈希表是一种键值存储数据的结构，只要输入给定的key，即可在常数级的时间内O(1)复杂度内查找操作对应的Value。</p>
+<p><strong> 考虑如何实现一个节点查找？</strong></p>
+<ol>
+<li>在不考虑内存浪费的情况下，我们可以申请一个足够大的数组，将key作为数组的索引，所有的查找都是O(1)。</li>
+<li>在不考虑时间的情况下，我们可以基于线性表，只要开销很小的内存可以实现O(N)顺序查找。</li>
+</ol>
+<p>现实中要实现一个合理可用的结构，不能不考虑内存利用和时间效率。</p>
+<p>哈希表的设计就是一个在时间和空间做出均衡设计的例子，它综合数组和链表的优点，使用适度的时间、空间来在两个极端实现平衡。</p>
+<p>下图描述了一个链地址法实现的哈希存储结构</p>
+<p><img alt="" src="/static/hash.png"></p>
+<h3>哈希表设计</h3>
+<p>哈希表的设计实现主要有两点： 哈希函数 + 解决哈希碰撞冲突</p>
+<ol>
+<li>使用哈希函数将key转换为一个哈希值作为数组的索引。理想的情况下，通过哈希函数转换的哈希值应当具有同一性，输出尽量均衡，这样可以平均地分布数组内。</li>
+<li>不用的key可能有同一个哈希值，处理哈希碰撞冲突有多种方式，比如开放定址法、链地址法。通过建立一个公共的溢出区来解决冲突！</li>
+</ol>
+<h4>哈希函数</h4>
+<p>评价一个哈希函数的优劣是以哈希值的随机性为准，即对任意一组标本，进入Hash表每一个单元的概率平均程度，概率越平均，也就是意味着分布越均匀 …</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/hash-table.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </h1>
       <p class="meta"><time datetime="2018-05-11T10:17:00+08:00" pubdate>五 11 五月 2018</time></p>
@@ -69,7 +100,7 @@
 <h3>从集中式到分布式面临的挑战</h3>
 <p>基于分布式的这种机制，从面临至今就面对诸多的问题和挑战，简单罗列一下比较典型和重要的问题。</p>
 <h5>1.通信异常问题</h5>
-<p>从单机过渡到多台机器，必然引入系统网络 ...</p></div>
+<p>从单机过渡到多台机器，必然引入系统网络 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/distributed-consistency.html">Read On &crarr;</a>
   </footer>
@@ -92,7 +123,7 @@
 <p>1.时针倒拨3小时 6-3 = 3</p>
 <p>2.时针顺播9小时 6+9 = 3</p>
 <p>在用第二种方式操作时，时针经过12点自动清除12， 从零重新计时</p>
-<p>即 6+9 =（12 ...</p></div>
+<p>即 6+9 =（12 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/complement.html">Read On &crarr;</a>
   </footer>
@@ -124,7 +155,7 @@ class Queue:
 </code>
 </pre></p>
 <p><strong>测试实例</strong></p>
-<p>macbook i5 2 ...</p></div>
+<p>macbook i5 2 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/GraphQL-API-Service.html">Read On &crarr;</a>
   </footer>
@@ -158,7 +189,7 @@ varint(128) = {10000000 10000000}
 </pre>
 
 <p>根据以上的例子可以看出，根据varint算法可以有效的降低存储空间（缺点：最高位是有效值的还要额外增加一个字节）</p>
-<p>总结： Protobuf虽然对数字进行了紧凑压缩 ...</p></div>
+<p>总结： Protobuf虽然对数字进行了紧凑压缩 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/Google-Protobuf.html">Read On &crarr;</a>
   </footer>
@@ -181,7 +212,7 @@ varint(128) = {10000000 10000000}
 <h3>解决方案</h3>
 <p>了解到了问题所在。解决问题也非常容易。
 只要在dnsmasq配置里面添加min_port=1024即可。</p>
-<p>另外如果未使用DNSmasq， 也要确认下面文件配置是否正确 ...</p></div>
+<p>另外如果未使用DNSmasq， 也要确认下面文件配置是否正确 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/dnsmasq-min-port.html">Read On &crarr;</a>
   </footer>
@@ -202,7 +233,7 @@ varint(128) = {10000000 10000000}
 <p>计算机起源于美国。起始阶段，美国为对英文字符制定的一套转换标准。它本身占用一个字节，使用该字节的后7位来表示数据，最高位固定为0， 这就是ASCII码。ASCII 规范了涵盖大小写英文字符，数字，一些标点符号和控制符号， 可可以对 2^7=128个字符进行编码。</p>
 <p>计算机发展到欧洲时，美国人的标准已经不再适用，国际化标准组织基于ASCII制定了ISO-8859标准, 使用了一个字节全8位来表示数据。因为ISO-8859也无法满足全部欧洲国家的需求，又延伸出了ISO-8859-1,ISO-8859-2等各种子标准！</p>
 <h3>双字节</h3>
-<p>当计算机传到亚洲的时候，单以汉字为例，就达到了10万多个。这时候之前定的国际标准已完全无法适用！只能继续扩大之前的二维标准，从单字节扩展到双字节，可编码范围到了 2^8 ...</p></div>
+<p>当计算机传到亚洲的时候，单以汉字为例，就达到了10万多个。这时候之前定的国际标准已完全无法适用！只能继续扩大之前的二维标准，从单字节扩展到双字节，可编码范围到了 2^8 …</p></div>
   <footer>
     <a rel="full-article" href="/entity/character.html">Read On &crarr;</a>
   </footer>
@@ -225,7 +256,7 @@ varint(128) = {10000000 10000000}
 <p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
 <p><strong>2.bson的存储结构</strong></p>
 <p>如果说bson是一个document，那么该document是以下结构进行存储</p>
-<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value ...</em></p></div>
+<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value …</em></p></div>
   <footer>
     <a rel="full-article" href="/entity/bson.html">Read On &crarr;</a>
   </footer>
@@ -239,6 +270,9 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
+      <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </li>
       <li class="post">
@@ -249,9 +283,6 @@ varint(128) = {10000000 10000000}
       </li>
       <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
     </ul>
   </section>
@@ -267,7 +298,7 @@ varint(128) = {10000000 10000000}
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

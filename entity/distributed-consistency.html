@@ -96,7 +96,7 @@
 <p>事务执行的结果必须是从一个一致性状态到另外一个一致性状态！（当一个数据库系统在执行事务时突然奔溃，未完成的事务有部分操作已经写入数据库，这时数据库就处于不一致性错误状态）</p>
 <p><strong>隔离性 Isolation</strong> </p>
 <p>事务的隔离性就是指在并发操作中，不同的事务是相互各类的，一个事务执行过程中，不允许被其他事务干扰。在标准的SQL中，定义了四中隔离级别，不用的隔离级别对事务的处理方式不同</p>
-<p><img alt="事务隔离性级别" src="/static/sql-isolation@2x.png" title="事务隔离性级别" /></p>
+<p><img alt="事务隔离性级别" src="/static/sql-isolation@2x.png" title="事务隔离性级别"></p>
 <p><em>A事务从1持续更新到10，B事务 从11更新到20。</em></p>
 <p><strong>持久性 Durability</strong></p>
 <p>一个事务一旦完成，数据库中的数据变更状态是永久性，即使发生系统故障，也能恢复到事务成功时的状态！</p>
@@ -124,7 +124,7 @@
 如何均衡一个兼容可用性和一致性的分布式系统？ 对于这种问题延伸出了诸如 CAP、BASE经典分布式系统理论</p>
 <h3>CAP理论</h3>
 <p>CAP理论证明了一个分布式系统不可能同时满足一致性、可用性、分区容错这三个基本需求，最多只能同时满足两个。</p>
-<p><img alt="CAP" src="/static/cap@2x.png" /></p>
+<p><img alt="CAP" src="/static/cap@2x.png"></p>
 <h4>CAP理论的应用</h4>
 <p><table>
     <thead>
@@ -184,7 +184,7 @@
 <li>牧师分别分新郎、新娘：你是否愿意… 不管生老病死 (阶段一询问)</li>
 <li>新郎新娘分别回答愿意(锁定一生资源)， 牧师就会说： 我宣布你们… (事务提交)</li>
 </ol>
-<p><img alt="2PC" src="/static/2PC@2x.png" /></p>
+<p><img alt="2PC" src="/static/2PC@2x.png"></p>
 <p>两阶段提交的最大问题：如果第一阶段完成后，参与者在第二阶段没有收到决策，
 那么数据节点就会进入“不知所措”的状态，最终Block整个事务</p>
 <p>绝大部分的关系型数据库如MySQL事务，以及跨数据库的事务处理，比如JTA，阿里云GTS均采用2PC理论设计实现。<em>（针对跨数据库事务，在2PC的基础上规范接口协议 即 = XA）</em> </p>
@@ -194,7 +194,7 @@
 <p>3PC是2PC的设计改进版，其将二阶段提交协议的“准备阶段”一份为二，形成了CanCommit，PreCommit，DoCommit三个阶段，也增加各阶段的超时处理。</p>
 <p>3PC主要解决的单点故障问题，并减少阻塞，因为一旦参与者无法及时收到来自协调者的信息之后，他会默认执行commit（所以产生新的协调者之后，可以确定事务的状态，这就解决了单点）。而不会一直持有事务资源并处于阻塞状态。</p>
 <p><strong>但是这种机制也会导致数据一致性问题，因为，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</strong></p>
-<p><img alt="3PC" src="/static/3pc@2x.png" /></p>
+<p><img alt="3PC" src="/static/3pc@2x.png"></p>
 <h3>一致性算法 Paxos （面向科学家的协议算法）</h3>
 <p>从2PC和3PC的介绍中，不难看出两者都无法彻底解决数据一致性问题（协调者单点问题，脑裂），那么有没有一种算法可以彻底解决分布式一致性问题，答案是有的，那就是Paxos.</p>
 <p>Paxos类似以议会投票选举的流程来设计，它允许运行宕机故障的异步系统，不要求可靠的消息传递，可容忍消息的丢失、延迟、乱序、以及重复。它利用了大多数机制 保证 2F+1的容错，即 2F+1个节点最多允许F个节点同事出现故障！</p>
@@ -266,32 +266,32 @@
 <li>Candidate 领袖候选人 （在初始以及Leader出错阶段可以被选举为领袖）</li>
 </ol>
 <p>三种角色的变迁图</p>
-<p><img alt="raft" src="/static/raft-select@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-select@2x.png"></p>
 <h4>领导人投票过程</h4>
 <p>最小的Raft民主集群需要三个参与者才可以投出多数票</p>
-<p><img alt="raft" src="/static/raft-vote@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-vote@2x.png"></p>
 <h4>Raft日志复制</h4>
 <p>Raft协议强依赖Leader节点的可用性来确保集群数据的一致性，数据流只能从Leader节点流向Follwer节点</p>
-<p><img alt="raft" src="/static/raft-log@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log@2x.png"></p>
 <h4>Raft日志复制以及日志安全</h4>
 <p>综合各种情况，Raft规范了六种异常处理机制</p>
 <p><strong>1.数据未到达Leader</strong></p>
-<p><img alt="raft" src="/static/raft-log1@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log1@2x.png"></p>
 <p><strong>2.数据到达Leader，但未同步到Follower</strong></p>
 <p>这个阶段 Leader 挂掉，数据属于未提交状态，Client 不会收到 Ack，会认为超时失败可安全发起重试。Follower 节点上没有该数据，重新选主后 Client 重试重新提交可成功。原来的 Leader 节点恢复后作为 Follower 加入集群重新从当前任期的新 Leader 处同步数据，强制保持和 Leader 数据一致。</p>
-<p><img alt="raft" src="/static/raft-log2@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log2@2x.png"></p>
 <p><strong>3.数据到达 Leader 节点，成功复制到 Follower 所有节点，但还未向 Leader 响应接收</strong></p>
 <p>这个阶段 Leader 挂掉，虽然数据在 Follower 节点处于未提交状态（Uncommitted）但保持一致，重新选出 Leader 后可完成数据提交，此时 Client 由于不知到底提交成功没有，可重试提交。针对这种情况实现内部去重机制</p>
-<p><img alt="raft" src="/static/raft-log3@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log3@2x.png"></p>
 <p><strong>4.数据到达 Leader 节点，成功复制到 Follower 部分节点，但还未向 Leader 响应接收</strong></p>
 <p>这个阶段 Leader 挂掉，数据在 Follower 节点处于未提交状态（Uncommitted）且不一致，Raft 协议要求投票只能投给拥有最新数据的节点。所以拥有最新数据的节点会被选为 Leader 再强制同步数据到 Follower，数据不会丢失并最终一致。
-<img alt="raft" src="/static/raft-log4@2x.png" /></p>
+<img alt="raft" src="/static/raft-log4@2x.png"></p>
 <p><strong>5.数据到达 Leader 节点，成功复制到 Follower 所有或多数节点，数据在 Leader 处于已提交状态，但在 Follower 处于未提交状态</strong></p>
 <p>流程和3基本一致</p>
-<p><img alt="raft" src="/static/raft-log5@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log5@2x.png"></p>
 <p><strong>6.数据到达 Leader 节点，成功复制到 Follower 所有或多数节点，数据在所有节点都处于已提交状态，但还未响应 Client</strong></p>
 <p>这个阶段 Leader 挂掉，Cluster 内部数据其实已经是一致的，Client 重复重试基于重复数据排除策略对一致性无影响。</p>
-<p><img alt="raft" src="/static/raft-log6@2x.png" /></p>
+<p><img alt="raft" src="/static/raft-log6@2x.png"></p>
 <p><strong>7.网络分区产生脑裂，双Leader情况</strong></p>
 <p>网络分区将原先的 Leader 节点和 Follower 节点分隔开，Follower 收不到 Leader 的心跳将发起选举产生新的 Leader。这时就产生了双 Leader，原先的 Leader 独自在一个区，向它提交数据不可能复制到多数节点所以永远提交不成功。向新的 Leader 提交数据可以提交成功，网络恢复后旧的 Leader 发现集群中有更新任期（Term）的新 Leader 则自动降级为 Follower 并从新 Leader 处同步数据达成集群数据一致。</p>
 <h4>Raft应用延伸</h4>
@@ -308,22 +308,7 @@
 </p><div class="sharing">
 </div>    </footer>
 
-	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/distributed-consistency.html" data-title="一.构建分布式一致性存储系统 - 协议篇" data-url="/entity/distributed-consistency.html"></div>
-<!-- 多说评论框 end -->
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"isno"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-<!-- 多说公共JS代码 end -->
+	
 
   </article>
 
@@ -332,6 +317,9 @@ var duoshuoQuery = {short_name:"isno"};
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </li>
@@ -343,9 +331,6 @@ var duoshuoQuery = {short_name:"isno"};
       </li>
       <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
     </ul>
   </section>
@@ -361,7 +346,7 @@ var duoshuoQuery = {short_name:"isno"};
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

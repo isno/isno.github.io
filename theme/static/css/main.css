@@ -1,0 +1,696 @@
+body
+{
+  font-family: Palatino, Georgia, Times, "Times New Roman", serif;
+  font-size: 24px;
+}
+
+/*********/
+/* fonts */
+/*********/
+
+dt,
+th,
+div.figure p.caption,
+p.admonition-title,
+#header header > h1,
+#header nav,
+#content-title,
+#paginator,
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6
+{
+  font-family: Verdana, Tahoma, Arial, sans;
+}
+
+code,
+tt,
+kbd,
+pre,
+nav > div.container,
+span.category,
+span.tag
+{
+  font-family: Courier, "Courier New", monospace;
+}
+
+ul,
+ol,
+dl,
+body > footer > address.attribution,
+article > header > p.author-cat-tag
+{
+  line-height: 1.5em;
+}
+
+/*****/
+/* a */
+/*****/
+
+a
+{
+  color: #A85206;
+  text-decoration: none;
+}
+
+a:hover
+{
+  text-decoration: underline;
+}
+
+a:visited
+{
+  color: #D67113;
+}
+
+kbd
+{
+  padding: 0.125ex 0.25ex 0 0.325ex;
+  border: 1px solid #D67113;
+
+  border-radius: 0.5ex;
+}
+
+blockquote
+{
+  margin-left: 2ex;
+  padding-left: 1ex;
+  border-left: 1ex solid #F0923B;
+}
+
+pre
+{
+  overflow: auto;
+}
+
+
+dd
+{
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/*********/
+/* table */
+/*********/
+
+table
+{
+  display: block;
+
+  overflow-x: auto;
+}
+
+table,
+th,
+td
+{
+  border: none;
+}
+
+th,
+td
+{
+  padding: 0 0.5ex 0 0.5ex;
+}
+
+th
+{
+  background-color: #FFAD61;
+  font-weight: normal;
+}
+
+td
+{
+  background-color: #FFC38B;
+}
+
+/*********************/
+/* rst linenos table */
+/*********************/
+
+td.linenos,
+td.code
+{
+  padding: 0;
+  background-color: transparent;
+}
+
+td.linenos > div.linenodiv > pre,
+td.code > div > pre
+{
+  margin: 0 auto;
+}
+
+td.linenos
+{
+  padding-right: 1ex;
+}
+
+/******************/
+/* figure / image */
+/******************/
+
+div.figure
+{
+  text-align: center;
+}
+
+div.figure p.caption
+{
+  margin: 0.5em auto;
+}
+
+/*************************/
+/* footnotes & citations */
+/*************************/
+
+table.footnote,
+table.citation
+{
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 0.2em dotted #FFC38B;
+}
+
+table.footnote + table.footnote,
+table.citation + table.citation
+{
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+table.footnote th,
+table.footnote td,
+table.citation th,
+table.citation td
+{
+  background-color: transparent;
+}
+
+table.footnote td > p.first,
+table.citation td > p.first
+{
+  margin-top: 0;
+}
+
+table.footnote td > p.last,
+table.citation td > p.last
+{
+  margin-bottom: 0;
+}
+
+/***************/
+/* admonitions */
+/***************/
+/* http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions */
+
+div.attention,
+div.caution,
+div.danger,
+div.error,
+div.hint,
+div.important,
+div.note,
+div.tip,
+div.warning
+{
+  margin: 1em auto 1em auto;
+  padding-top: 0.25em;
+  padding-bottom: 0.5em;
+  padding-left: 0.5em;
+  border-bottom: 0.25ex dashed #FFC38B;
+  border-left: 0.25ex dashed #FFC38B;
+}
+
+p.admonition-title
+{
+  margin: 0;
+}
+
+div.attention > p.first + p,
+div.caution > p.first + p,
+div.danger > p.first + p,
+div.error > p.first + p,
+div.hint > p.first + p,
+div.important > p.first + p,
+div.note > p.first + p,
+div.tip > p.first + p,
+div.warning > p.first + p
+{
+  margin-top: 0;
+}
+
+div.attention > p.last,
+div.caution > p.last,
+div.danger > p.last,
+div.error > p.last,
+div.hint > p.last,
+div.important > p.last,
+div.note > p.last,
+div.tip > p.last,
+div.warning > p.last
+{
+  margin-bottom: 0;
+}
+
+/***************/
+/* blog header */
+/***************/
+
+#header,
+body > main,
+#paginator,
+body > footer
+{
+  margin: 0 auto;
+  width: 1024px;
+}
+
+#header,
+#header > div.handle
+{
+  position: relative;
+}
+
+#header > div.handle > span.dots
+{
+  border-top: 1rem dotted #F0923B;
+  position: absolute;
+  top: calc(-1.75rem);
+  left: calc((100% - 8rem) / 2);
+  width: 9rem;
+  height: 2rem;
+  text-align: center;
+}
+
+#header > div.content
+{
+  display: none;
+}
+
+#header:hover > div.content
+{
+  display: block;
+  position: absolute;
+  top: -3.5ex;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(255, 195, 139, 0.9);  /* #FFC38B */
+
+  border-radius: 0 0 1ex 1ex;
+}
+
+#header header
+{
+  text-align: center;
+}
+
+#header header,
+#header header > h1 > a,
+#header header > h1 > a:hover,
+#header header > h1 > a:visited
+{
+  color: #D67113;
+}
+
+#header header > h1
+{
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+#header header > h1 > a:hover
+{
+  color: #A85206;
+  text-decoration: none;
+}
+
+#publisher-description
+{
+  margin: 0;
+  color: #A85206;
+}
+
+/***************/
+/* blog footer */
+/***************/
+
+body > footer
+{
+  margin-top: 1em;
+}
+
+/*******************/
+/* blog navigation */
+/*******************/
+
+#header nav
+{
+  padding: 0 0 1em 0;
+  position: relative;
+  height: calc(1em - 0.5ex);
+}
+
+#header nav > div.container
+{
+  display: inline-block;
+  vertical-align: top;
+}
+
+#header nav > div.container > div.content
+{
+  display: none;
+}
+
+#header nav > div.container:hover > div.content
+{
+  padding: 0.5ex;
+  border: 1px solid #D67113;
+  display: inline-block;
+  position: absolute;
+  background-color: #FFC38B;
+
+  border-radius: 0.5ex;
+}
+
+#header nav > div.container
+{
+  font-weight: bold;
+}
+
+#header nav > div.container > div.handle,
+#header nav > div.container > div.handle > a
+{
+  color: #A85206;
+}
+
+#header nav > div.container > div.handle
+{
+  margin-left: 0.5ch;
+  padding: 0.5ex 0.5ch;
+}
+
+#header nav > div.container > div.content a.active
+{
+  color: #A85206;
+}
+
+/********/
+/* main */
+/********/
+
+#content-title
+{
+  text-align: center;
+}
+
+#content-title,
+article:first-child,
+article > header > h2
+{
+  margin-top: 1.25rem;
+}
+
+/**************/
+/* paginatior */
+/**************/
+
+#paginator
+{
+  text-align: center;
+}
+
+#paginator span
+{
+  margin: 0 0.5ch;
+}
+
+/***************/
+/* blog footer */
+/***************/
+
+body > footer
+{
+  text-align: center;
+}
+
+body > footer > address
+{
+}
+
+/***********/
+/* article */
+/***********/
+
+article
+{
+  margin: 1em auto;
+}
+
+article > header
+{
+  position: relative;
+  text-align: center;
+}
+
+/****************/
+/* translations */
+/****************/
+
+article > header > div.translations
+{
+  position: absolute;
+  right: 0;
+}
+
+/******************************************/
+/* type link styles:                      */
+/* translation, author, category, and tag */
+/******************************************/
+
+span.translation::before
+{
+  content: "[";
+}
+
+span.translation::after
+{
+  content: "]";
+}
+
+span.author span.name::before
+{
+  content: "@";
+}
+
+span.category::before
+{
+  content: "{";
+}
+
+span.category::after
+{
+  content: "\7D";
+}
+
+span.tag::before
+{
+  content: "#";
+}
+
+span.author:hover::before,
+span.category:hover::after,
+span.category:hover::before,
+span.tag:hover::before,
+span.translation:hover::after,
+span.translation:hover::before
+{
+  color: #F0923B;
+}
+
+span.author > a:hover,
+span.category > a:hover,
+span.tag > a:hover,
+span.translation > a:hover
+{
+  text-decoration: none;
+}
+
+/*******************/
+/* article summary */
+/*******************/
+
+article.summary > img.thumbnail
+{
+  padding: 0 0 2ex 2ex;
+  float: right;
+}
+
+article.summary > header
+{
+  text-align: left;
+}
+
+article.summary > header > h2,
+article.summary > header > p
+{
+  margin: 0.5em auto;
+}
+
+article > div.summary
+{
+  position: relative;  /* for fading out to work */
+}
+
+article > div.summary > p
+{
+  margin-top: 0;
+  max-height: calc(5 * 1.25em + 1em);  /* 5 lines */
+  overflow: hidden;
+}
+
+article > div.summary > p::after
+{
+  position: absolute;
+  right: 0;
+  bottom: 0;  /* match margin-bottom */
+  width: 100%;
+  height: 100%;  /* match line-height */
+  content: "";
+  background: transparent
+              linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.0)   0%,
+                rgba(255, 255, 255, 0.1)  40%,
+                rgba(255, 255, 255, 1.0) 100%
+              );
+  text-align: right;
+}
+
+article > div.summary > span.readmore
+{
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;  /* above div.summary > p */
+}
+
+article > div.summary > span.readmore > a
+{
+  color: #F0923B;
+}
+
+/*****************/
+/* blog archives */
+/*****************/
+
+#period-archives ul.days
+{
+  padding-left: 0;
+  list-style: none;
+}
+
+/***********************************************/
+/* Solarized Pygments Style                    */
+/* https://github.com/john2x/solarized-pygment */
+/***********************************************/
+
+pre > .hll { background-color: #ffffcc }
+pre > .c { color: #93a1a1; font-style: italic } /* Comment */
+pre > .g { color: #d33682 } /* Generic */
+pre > .k { color: #859900 } /* Keyword */
+pre > .l { color: #2aa198 } /* Literal */
+pre > .n { color: #268bd2 } /* Name */
+pre > .cm { color: #93a1a1; font-style: italic } /* Comment.Multiline */
+pre > .cp { color: #93a1a1; font-style: italic } /* Comment.Preproc */
+pre > .c1 { color: #93a1a1; font-style: italic } /* Comment.Single */
+pre > .cs { color: #93a1a1; font-style: italic } /* Comment.Special */
+pre > .gd { color: #d33682 } /* Generic.Deleted */
+pre > .ge { color: #d33682 } /* Generic.Emph */
+pre > .gr { color: #d33682 } /* Generic.Error */
+pre > .gh { color: #d33682 } /* Generic.Heading */
+pre > .gi { color: #d33682 } /* Generic.Inserted */
+pre > .go { color: #d33682 } /* Generic.Output */
+pre > .gp { color: #d33682 } /* Generic.Prompt */
+pre > .gs { color: #d33682 } /* Generic.Strong */
+pre > .gu { color: #d33682 } /* Generic.Subheading */
+pre > .gt { color: #d33682 } /* Generic.Traceback */
+pre > .kc { color: #859900; font-weight: bold } /* Keyword.Constant */
+pre > .kd { color: #859900 } /* Keyword.Declaration */
+pre > .kn { color: #dc322f; font-weight: bold } /* Keyword.Namespace */
+pre > .kp { color: #859900 } /* Keyword.Pseudo */
+pre > .kr { color: #859900 } /* Keyword.Reserved */
+pre > .kt { color: #859900; font-weight: bold } /* Keyword.Type */
+pre > .ld { color: #2aa198 } /* Literal.Date */
+pre > .m { color: #2aa198; font-weight: bold } /* Literal.Number */
+pre > .s { color: #2aa198 } /* Literal.String */
+pre > .na { color: #268bd2 } /* Name.Attribute */
+pre > .nb { color: #cb4b16 } /* Name.Builtin */
+pre > .nc { color: #cb4b16 } /* Name.Class */
+pre > .no { color: #268bd2 } /* Name.Constant */
+pre > .nd { color: #268bd2 } /* Name.Decorator */
+pre > .ni { color: #268bd2 } /* Name.Entity */
+pre > .ne { color: #268bd2 } /* Name.Exception */
+pre > .nf { color: #268bd2 } /* Name.Function */
+pre > .nl { color: #268bd2 } /* Name.Label */
+pre > .nn { color: #268bd2 } /* Name.Namespace */
+pre > .nx { color: #268bd2 } /* Name.Other */
+pre > .py { color: #268bd2 } /* Name.Property */
+pre > .nt { color: #268bd2; font-weight: bold } /* Name.Tag */
+pre > .nv { color: #268bd2 } /* Name.Variable */
+pre > .ow { color: #859900 } /* Operator.Word */
+pre > .w { color: #586e75 } /* Text.Whitespace */
+pre > .mb { color: #2aa198; font-weight: bold } /* Literal.Number.Bin */
+pre > .mf { color: #2aa198; font-weight: bold } /* Literal.Number.Float */
+pre > .mh { color: #2aa198; font-weight: bold } /* Literal.Number.Hex */
+pre > .mi { color: #2aa198; font-weight: bold } /* Literal.Number.Integer */
+pre > .mo { color: #2aa198; font-weight: bold } /* Literal.Number.Oct */
+pre > .sb { color: #2aa198 } /* Literal.String.Backtick */
+pre > .sc { color: #2aa198 } /* Literal.String.Char */
+pre > .sd { color: #2aa198 } /* Literal.String.Doc */
+pre > .s2 { color: #2aa198 } /* Literal.String.Double */
+pre > .se { color: #2aa198 } /* Literal.String.Escape */
+pre > .sh { color: #2aa198 } /* Literal.String.Heredoc */
+pre > .si { color: #2aa198 } /* Literal.String.Interpol */
+pre > .sx { color: #2aa198 } /* Literal.String.Other */
+pre > .sr { color: #2aa198 } /* Literal.String.Regex */
+pre > .s1 { color: #2aa198 } /* Literal.String.Single */
+pre > .ss { color: #2aa198 } /* Literal.String.Symbol */
+pre > .bp { color: #cb4b16 } /* Name.Builtin.Pseudo */
+pre > .vc { color: #268bd2 } /* Name.Variable.Class */
+pre > .vg { color: #268bd2 } /* Name.Variable.Global */
+pre > .vi { color: #268bd2 } /* Name.Variable.Instance */
+pre > .il { color: #2aa198; font-weight: bold } /* Literal.Number.Integer.Long */
+
+/*************/
+/* responsive /
+/*************/
+
+@media not screen and (min-width: 1043px)
+{
+  body
+  {
+    font-size: 20px;
+  }
+
+  #header,
+  body > main,
+  #paginator,
+  body > footer
+  {
+    margin-right: 10px;
+    margin-left: 10px;
+    width: calc(100% - 2 * 10px);
+  }
+
+  img
+  {
+    max-width: 100%;
+  }
+}

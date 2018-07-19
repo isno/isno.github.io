@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Google Protobuf应用</title>
+  <title>构建分布式一致性存储系统 - 存储篇</title>
   <meta name="author" content="isno">
   
 
@@ -44,44 +44,40 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Google Protobuf应用</h1>
-      <p class="meta"><time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time></p>
+      <h1 class="entry-title">构建分布式一致性存储系统 - 存储篇</h1>
+      <p class="meta"><time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time></p>
 </header>
 
-  <div class="entry-content"><p>Protocol Buffer是Google 推出的一种轻便高效的结构化数据交换格式，因轻便高效等特性，公司的项目在数据描述以及传输上大量使用了protobuf作为标准！</p>
-<p>在一次和同事的技术讨论中，提到了官方的介绍是protobuf对比xml更小更快更灵活。那么既然官方说占用的存储空间较小，在应用中是否还有必要再进行压缩？</p>
-<p>基于以上的疑问，在这里简单分析一下protobuf的原理，在知其所以然的情况下在后期可以更好的应用！</p>
-<h3>存储空间为什么更小？</h3>
-<p><strong><em>可变长字节码算法 (varint)</em></strong></p>
-<p>通常一个普通的int类型，在计算机中占用4个字节，以int127 在计算机中存储二进制流为例
-<pre>
-<code class="go">
-binary(127) = {00000000 00000000 00000000 01111111}
-</code>
-</pre>
-以上的例子可以明显的看出，对于不大于128的数字，可以只用一个字节来存储。因字节流是连续的，需要再占用一个字节的高位，最终可完成对int类型的紧凑压缩</p>
-<pre>
-<code class="go">
-varint(127) = {01111111} // 最高位0表示,该字节是一个独立的数字
-// 128的最高位是有效值，所以需要再增加一个字节，最高位1表示 下一个字节还属于该int的有效字节
-varint(128) = {10000000 10000000}
-</code>
-</pre>
-
-<p>根据以上的例子可以看出，根据varint算法可以有效的降低存储空间（缺点：最高位是有效值的还要额外增加一个字节）</p>
-<p>总结： Protobuf虽然对数字进行了紧凑压缩，但并未对字符进行压缩设计，对一个字符占比交大的数据进行zip类的压缩依旧很有必要！</p></div>
+  <div class="entry-content"><p>在大规模的数据存储中，实现索引查询，解决数据快速查找的背景下，数据的结构设计变的尤为重要！</p>
+<p>在理解存储结构之前，我们先回顾了解一下硬盘的物理结构！</p>
+<p><img alt="硬盘结构" src="/static/disk@2x.png" /></p></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
     Posted by <span class="fn">isno</span>
   </span>
-<time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time>  <span class="categories">
-    <a class="category" href="/tag/google-protobuf.html">Google-Protobuf</a>
+<time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time>  <span class="categories">
+    <a class="category" href="/tag/distributed-storage.html">distributed storage</a>
   </span>
 </p><div class="sharing">
 </div>    </footer>
 
-	
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="entity/distributed-storage.html" data-title="构建分布式一致性存储系统 - 存储篇" data-url="/entity/distributed-storage.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"isno"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
 
   </article>
 
@@ -91,7 +87,7 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+          <a href="/entity/distributed-storage.html">构建分布式一致性存储系统 - 存储篇</a>
       </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
@@ -119,7 +115,7 @@ varint(128) = {10000000 10000000}
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/golang.html">golang</a>,    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/distributed-storage.html">distributed storage</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

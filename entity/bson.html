@@ -66,7 +66,7 @@ Println(bson.Marshal(data)) // out  [12 0 0 0 16 97 0 1 0 0 0 0]</code>
 以上面输出为例</p>
 <p>整个结构长度为12byte, 结构类型为16 (16=\x10), element.key 为97， 对应ascii a, 后面的1 0 0 0 为 [4]bye(int32(1))</p>
 <p>解释下1为什么会转换为 1 0 0 0</p>
-<p>一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中<br />
+<p>一个byte是8bit, int32 为4*8 bit, int32转换为byte 要申请4byte的空间, 再通过移位运算将int分配到4个byte中<br>
 {00000000...00000001}, 00000001到byte[0], 000...到byte[1]..
 即 byte(1&gt;&gt;0)+ byte(1&gt;&gt;8)+ byte(1&gt;&gt;16)+ byte(1&gt;&gt;24), 解析的时候再进行左移还原</p>
 <p>在bson中 map, array 以子document的形式顺序存在父docuement中
@@ -92,22 +92,7 @@ Println(bson.Marshal(data)) // out  [20 0 0 0 3 97 0 12 0 0 0 16 97 0 1 0 0 0 0 
 </p><div class="sharing">
 </div>    </footer>
 
-	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/bson.html" data-title="BSON原理解析" data-url="/entity/bson.html"></div>
-<!-- 多说评论框 end -->
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"isno"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-<!-- 多说公共JS代码 end -->
+	
 
   </article>
 
@@ -116,6 +101,9 @@ var duoshuoQuery = {short_name:"isno"};
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </li>
@@ -127,9 +115,6 @@ var duoshuoQuery = {short_name:"isno"};
       </li>
       <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
     </ul>
   </section>
@@ -145,7 +130,7 @@ var duoshuoQuery = {short_name:"isno"};
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

@@ -94,7 +94,7 @@ if($Auth-&gt;check()){
 <p>功能越加越多，需求也越来越变态.. 某某功能需要在发博文之前，某某需要在发博文之后，某某需要控制博文发表, 某某功能需要在权限功能之前</p>
 <p>不难发现，没有一个好的模式随着次业务越来越多，最终代码变的臃肿不堪,难以测试，各种优先级，关系，也带来了各种陷阱..</p>
 <p>不论最开始的开发人员还是后续维护的，看到这种代码无外乎头疼脑裂, 想改善也难以下手
-<img alt="" src="/static/entity.jpg" />
+<img alt="" src="/static/entity.jpg">
 <em>最终的业务流程图!</em></p>
 <h2>如何改进</h2>
 <p>写程序中最大的两道难题? 一个是解耦，另外一个是变量命名!</p>
@@ -113,7 +113,7 @@ if($Auth-&gt;check()){
 说说在我看来比较完美的实现方式: 利用递归对象链的方式实现PHP AOP!</p>
 <p>对象链比较难解释，这里用图片说明一下
 先看一下 打印对象链的结构体
-<img alt="" src="/static/nup.png" /></p>
+<img alt="" src="/static/nup.png"></p>
 <p>简单来说, 对象链是一个AdviceContainer对象，该对象包含两个属性 1.target 2. advice每一个切面都是一个 AdviceContainer对象, advice 包含了切面的切入方式和方法, target 又是一个 AdviceContainer 对象,一直不断的递归，直到最后一链 主业务类 Entery</p>
 <p>从上面的图可以看出，所有的 target 只有两种形态</p>
 <ol>
@@ -121,7 +121,7 @@ if($Auth-&gt;check()){
 <li>Entry Object</li>
 </ol>
 <p>从这种区别中，我们在执行对象链的时候，就可以区分出哪些是切面方法，哪个是主业务类</p>
-<p><img alt="" src="/static/aop.jpg" /></p>
+<p><img alt="" src="/static/aop.jpg"></p>
 <p>相比之前的流程图，现在这种处理方式变的非常流畅，支线业务也可以通过配置无缝的切入到主业务之上, 主业务也不用做任何修改!!!</p>
 <p>类库的代码就不再详解,以下为github的类库地址, 可以实现基本不改业务代码的情况下无缝切入(已使用在生产环境)</p>
 <p><a href="https://github.com/isno/php-aop" title="https://github.com/isno/php-aop">https://github.com/isno/php-aop</a></p></div>
@@ -137,22 +137,7 @@ if($Auth-&gt;check()){
 </p><div class="sharing">
 </div>    </footer>
 
-	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="entity/php-aop.html" data-title="AOP在php项目上的应用" data-url="/entity/php-aop.html"></div>
-<!-- 多说评论框 end -->
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"isno"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-<!-- 多说公共JS代码 end -->
+	
 
   </article>
 
@@ -161,6 +146,9 @@ var duoshuoQuery = {short_name:"isno"};
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
       </li>
@@ -172,9 +160,6 @@ var duoshuoQuery = {short_name:"isno"};
       </li>
       <li class="post">
           <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
-      </li>
-      <li class="post">
-          <a href="/entity/dnsmasq-min-port.html">一次内网DNS解析故障的总结</a>
       </li>
     </ul>
   </section>
@@ -190,7 +175,7 @@ var duoshuoQuery = {short_name:"isno"};
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 
