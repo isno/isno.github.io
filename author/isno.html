@@ -45,6 +45,39 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/golang-unsafe.html">理解Golang中的unsafe包</a>
+      </h1>
+      <p class="meta"><time datetime="2018-07-31T15:00:00+08:00" pubdate>二 31 七月 2018</time></p>
+</header>
+
+  <div class="entry-content"><p>Golang 是一个强类型的语言， 包括指针也具有明确的类型属性。Golang的强类型意味着不同类型的结构无法进行赋值等相关的操作!</p>
+<p>golang的类型系统是为了安全和效率而设计，但有时候一些安全机制会导致Go程序效率低下，golang提供了unsafe包，利用unsafe包中的一些操作可以绕开golang系统类型和内存管理的安全机制, 从而高效的完成一些类型转换!</p>
+<p>下面看一下golang类型系统中的指针</p>
+<ul>
+<li><em>类型 普通类型指针 只允许用于传递对象地址 无法运算 也无法转换  如 </em>uint32 *int32</li>
+<li>unsafe.Pointer 转换型指针 用于转换不用类型的指针 无法进行指针运算 </li>
+<li>uintper 用于存储指针的类型, 可用于指针运算</li>
+</ul>
+<pre>
+<code class="go">
+    package main
+    import (
+        "fmt"
+        "reflect"
+        "unsafe"
+    )
+    func main() {
+        a := uint32(2)
+        b := int32(1)
+        fmt.Println(reflect.TypeOf(&a)) // *uint32
+        fmt.Println(reflect.TypeOf(&b)) // *int32 …</code></pre></div>
+  <footer>
+    <a rel="full-article" href="/entity/golang-unsafe.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
       </h1>
       <p class="meta"><time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time></p>
@@ -283,6 +316,9 @@ varint(128) = {10000000 10000000}
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/golang-unsafe.html">理解Golang中的unsafe包</a>
+      </li>
+      <li class="post">
           <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
       </li>
       <li class="post">
@@ -293,9 +329,6 @@ varint(128) = {10000000 10000000}
       </li>
       <li class="post">
           <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
-      </li>
-      <li class="post">
-          <a href="/entity/Google-Protobuf.html">Google Protobuf应用</a>
       </li>
     </ul>
   </section>
@@ -311,7 +344,7 @@ varint(128) = {10000000 10000000}
 
   <section>
   <h1>Tags</h1>
-    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">Golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
 
 
 

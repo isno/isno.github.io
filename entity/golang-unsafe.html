@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>isno的网络日志 - Golang</title>
+  <title>理解Golang中的unsafe包</title>
   <meta name="author" content="isno">
   
 
@@ -35,18 +35,16 @@
     <li >
     <a href="/category/php.html">Php</a>
     </li>
-    <li >
+    <li class="active">
     <a href="/category/program.html">Program</a>
     </li>
 </ul></nav>
   <div id="main">
     <div id="content">
-<div class="blog-index">
-  		<article>
+<div>
+  <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">
-        <a href="/entity/golang-unsafe.html">理解Golang中的unsafe包</a>
-      </h1>
+      <h1 class="entry-title">理解Golang中的unsafe包</h1>
       <p class="meta"><time datetime="2018-07-31T15:00:00+08:00" pubdate>二 31 七月 2018</time></p>
 </header>
 
@@ -70,53 +68,141 @@
         a := uint32(2)
         b := int32(1)
         fmt.Println(reflect.TypeOf(&a)) // *uint32
-        fmt.Println(reflect.TypeOf(&b)) // *int32 …</code></pre></div>
-  <footer>
-    <a rel="full-article" href="/entity/golang-unsafe.html">Read On &crarr;</a>
-  </footer>
-  		</article>
-  		<article>
-<header>
-      <h1 class="entry-title">
-        <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
-      </h1>
-      <p class="meta"><time datetime="2017-04-03T17:37:00+08:00" pubdate>一 03 四月 2017</time></p>
-</header>
+        fmt.Println(reflect.TypeOf(&b)) // *int32
 
-  <div class="entry-content"><h2><em>任务系统</em></h2>
-<h4>一.消息队列</h4>
-<p>以Redis的List和Set结构为基础，转化ActiveMQ为内部消息队列！
-List保持activeMQ的优先级，程序的阻塞，Set辅助实现队列数据唯一性！
+        /*
+        p := &a
+        p = &b // 报错, 类型不同无法转换
+        */
+
+        /**
+          正确的操作
+          p 和 a 指向同一内存地址，值一样，但变量类型不同
+        */
+        p := (*int32)(unsafe.Pointer(&a))
+    }
+</code>
+</pre>
+
+<p>利用golang的 unsafe.Pointer 指针可以完成一些非常高效的工作！
+以 string转换到字节数组为例，分析golang对底层字节数组的复制带来的低效, 
 <pre>
-<code class="python">
-class Queue:
-    def pop(self):
-        entity_id = self.redis.lpop("queue")
-        self.redis.srem("sets", entity_id)
-        return entity_id
-    def push(self, entity_id):
-        if self.redis.sismember("sets", entity_id):
-            return
-        self.redis.sadd("sets", entity_id)
-        self.redis.rpush("queue", entity_id)
+<code class="go">
+package main
+import (
+    "fmt"
+)
+func main() {
+    a := "hello"
+    b := []byte(a)
+    fmt.Println(a, b)
+}
+// gdb 调试
+(gdb) ptype a
+type = struct string {
+    uint8 <em>str;
+    int len;
+}
+(gdb) ptype b
+type = struct []uint8 {
+    uint8 </em>array;
+    int len;
+    int cap;
+}
+(gdb) x/2xg &amp;a
+0xc420045ed0:   0x00000000010beca4  0x0000000000000005
+(gdb) x/2xg &amp;b
+0xc420045f10:   0x000000c4200140a8  0x0000000000000005
 </code>
 </pre></p>
-<p><strong>测试实例</strong></p>
-<p>macbook i5 2 …</p></div>
-  <footer>
-    <a rel="full-article" href="/entity/GraphQL-API-Service.html">Read On &crarr;</a>
-  </footer>
-  		</article>
-<div class="pagination">
+<p>用gdb调试，从输出的内存地址来看， string 和 []byte 分别为独立的两个内存地址，
+[]byte(a) 操作属于拷贝了一份新的数据。</p>
+<p>在高频操作转换的场所， 这种赋值方式显然并不高效，是否可以直接在 string 或者 []byte结构中操作内存指向地址来提升转换效率？</p>
+<p>从 string 和 []byte的结构着手看，结合go的源码定义
+<pre>
+<code class="go">
+// src/runtime/string.go
+// string 结构
+type stringStruct struct {
+    str unsafe.Pointer //某数组地址
+    len int // 长度 
+}</p>
+<p>// src/runtime/slice.go
+// byte</p>
+<p>type slice struct {
+    array unsafe.Pointer // 某数组地址
+    len   int  // 长度
+    cap   int // 容量
+}
+</code>
+</pre></p>
+<p>看结构的定义， string 和 []byte  都是明确的 struct 结构， []byte与string，稍许不同，多了一个cap容量。 了解了这些结构，我们利用unsafe.Pointer进行相互的转换</p>
+<pre>
+<code class="go">
+// []byte convert to string
 
-  <br />
-</div></div>
+func bytesToString(from []byte) string {
+    a := []byte("hello")
+
+    // 根据结构，转换为两个指针, [0]为数组地址, [1] 为长度 [2] 为容量
+    p := (*[3]uintptr)(unsafe.Pointer(&a)) 
+    c := [2]uinptr{p[0], p[1]}
+
+    fmt.Println(c) // out [842350739248 5]
+
+    s : = *(*string)(unsafe.Pointer(&c))
+    fmt.Println(s) // out hello
+
+    return s
+}
+func stringToBytes(x string) []byte {
+    p := (*[2]uintptr)(unsafe.Pointer(&x))
+    c := [2]uintptr{p[0], p[1], p[1]}
+    return *(*[]byte)(unsafe.Pointer(&c))
+}
+
+</code>
+</pre>
+
+<pre>
+<code class="go">
+BenchmarkV1-4       200000000            7.26 ns/op
+BenchmarkV2-4       2000000000           0.64 ns/op
+</code>
+</pre>
+
+<p>测试结果使用指针转换，效率明显提升！</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2018-07-31T15:00:00+08:00" pubdate>二 31 七月 2018</time>  <span class="categories">
+    <a class="category" href="/tag/golang.html">Golang</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+
+	
+
+  </article>
+
+</div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
           <a href="/entity/golang-unsafe.html">理解Golang中的unsafe包</a>
+      </li>
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
+      <li class="post">
+          <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
+      </li>
+      <li class="post">
+          <a href="/entity/complement.html">补码的原理</a>
       </li>
       <li class="post">
           <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
@@ -142,7 +228,7 @@ class Queue:
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2017-2018  - isno -
+    Copyright &copy;  2014-2018  - isno -
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 <!----></body>
