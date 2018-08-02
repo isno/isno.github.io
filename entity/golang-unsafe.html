@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>理解Golang中的unsafe包</title>
+  <title>理解及利用Golang中的unsafe包</title>
   <meta name="author" content="isno">
   
 
@@ -44,7 +44,7 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">理解Golang中的unsafe包</h1>
+      <h1 class="entry-title">理解及利用Golang中的unsafe包</h1>
       <p class="meta"><time datetime="2018-07-31T15:00:00+08:00" pubdate>二 31 七月 2018</time></p>
 </header>
 
@@ -84,8 +84,7 @@
 </code>
 </pre>
 
-<p>利用golang的 unsafe.Pointer 指针可以完成一些非常高效的工作！
-以 string转换到字节数组为例，分析golang对底层字节数组的复制带来的低效, 
+<p>以 string转换到字节数组为例，分析golang对底层字节数组的复制的机制, 
 <pre>
 <code class="go">
 package main
@@ -164,14 +163,26 @@ func stringToBytes(x string) []byte {
 </code>
 </pre>
 
+<p>对比一下，两种操作方式的性能差异！
 <pre>
 <code class="go">
 BenchmarkV1-4       200000000            7.26 ns/op
 BenchmarkV2-4       2000000000           0.64 ns/op
 </code>
-</pre>
+</pre></p>
+<p>测试结果使用指针转换，效率明显提升！</p>
+<h3>扩展</h3>
+<p>很明显，从string的结构看，unsafe.Sizeof 也与我们之前理解的SizeOf稍许不同！</p>
+<pre>
+<code class="go">
+fmt.Println(unsafe.SizeOf(string("aaasdjahsdjkasdha"))) // 16 数组指针+长度
 
-<p>测试结果使用指针转换，效率明显提升！</p></div>
+// 用SizeOf和uintptr, 我们可以绕开 指针无法计算偏移量的问题
+a := []int{1, 2, 3, 4}
+fmt.Println(*(*int)(unsafe.Pointer(uintptr(unsafe.Pointer(&a[0])) + 3*unsafe.Sizeof(a[0]))))
+
+</code>
+</pre></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
@@ -193,7 +204,7 @@ BenchmarkV2-4       2000000000           0.64 ns/op
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="/entity/golang-unsafe.html">理解Golang中的unsafe包</a>
+          <a href="/entity/golang-unsafe.html">理解及利用Golang中的unsafe包</a>
       </li>
       <li class="post">
           <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
