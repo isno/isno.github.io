@@ -45,6 +45,34 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/cpu-cache.html">理解CPU Cache</a>
+      </h1>
+      <p class="meta"><time datetime="2018-08-27T14:54:00+08:00" pubdate>一 27 八月 2018</time></p>
+</header>
+
+  <div class="entry-content"><p>问题由一个循环优化的代码引入，下面两个循环哪一个执行速度更快?
+<pre>
+<code class="go">
+func Loop1(b <em>testing.B) {
+    var i, j int
+    var array [1024][1024]int
+    for i = 0; i &lt; 1024; i++ {
+        for j = 0; j &lt; 1024; j++ {
+            array[i][j]++
+        }
+    }
+}
+func Loop2(b </em>testing.B) {
+    var i, j int
+    var array2 [1024][1024]int
+    for i = 0; i &lt; 1024 …</code></pre></p></div>
+  <footer>
+    <a rel="full-article" href="/entity/cpu-cache.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
       </h1>
       <p class="meta"><time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time></p>
@@ -81,6 +109,9 @@
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/cpu-cache.html">理解CPU Cache</a>
+      </li>
       <li class="post">
           <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
       </li>

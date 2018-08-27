@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Map结构的实现原理(-)</title>
+  <title>理解CPU Cache</title>
   <meta name="author" content="isno">
   
 
@@ -44,61 +44,65 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Map结构的实现原理(-)</h1>
-      <p class="meta"><time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time></p>
+      <h1 class="entry-title">理解CPU Cache</h1>
+      <p class="meta"><time datetime="2018-08-27T14:54:00+08:00" pubdate>一 27 八月 2018</time></p>
 </header>
 
-  <div class="entry-content"><p>Map是一种常见的数据结构，目前在主流语言中基本都自带实现！比如Golang中的Map，Python中的Dict,PHP中的 Array等</p>
-<p>语言层的map基本都是以哈希表来实现，哈希表是一种键值存储数据的结构，只要输入给定的key，即可在常数级的时间内O(1)复杂度内查找操作对应的Value。</p>
-<p><strong> 考虑如何实现一个节点查找？</strong></p>
-<ol>
-<li>在不考虑内存浪费的情况下，我们可以申请一个足够大的数组，将key作为数组的索引，所有的查找都是O(1)。</li>
-<li>在不考虑时间的情况下，我们可以基于线性表，只要开销很小的内存可以实现O(N)顺序查找。</li>
-</ol>
-<p>现实中要实现一个合理可用的结构，不能不考虑内存利用和时间效率。</p>
-<p>哈希表的设计就是一个在时间和空间做出均衡设计的例子，它综合数组和链表的优点，使用适度的时间、空间来在两个极端实现平衡。</p>
-<p>下图描述了一个链地址法实现的哈希存储结构</p>
-<p><img alt="" src="/static/hash.png"></p>
-<h3>哈希表设计</h3>
-<p>哈希表的设计实现主要有两点： 哈希函数 + 解决哈希碰撞冲突</p>
-<ol>
-<li>使用哈希函数将key转换为一个哈希值作为数组的索引。理想的情况下，通过哈希函数转换的哈希值应当具有同一性，输出尽量均衡，这样可以平均地分布数组内。</li>
-<li>不用的key可能有同一个哈希值，处理哈希碰撞冲突有多种方式，比如开放定址法、链地址法。通过建立一个公共的溢出区来解决冲突！</li>
-</ol>
-<h4>哈希函数</h4>
-<p>评价一个哈希函数的优劣是以哈希值的随机性为准，即对任意一组标本，进入Hash表每一个单元的概率平均程度，概率越平均，也就是意味着分布越均匀，Hash表空间的利用率也就越高！</p>
-<p>业内比较常用的哈希算法有以下</p>
-<ul>
-<li>DJB(time33) 业内比较常用的哈希算法</li>
-<li>BKDR 效率高于DJB，Java采用的字符串哈希算法，执行效率和平均分布都比较出色！</li>
-<li>Murmur </li>
-</ul>
-<p>我们选取其中BKDR算法，用数学的原理分析是如何减少碰撞！
+  <div class="entry-content"><p>问题由一个循环优化的代码引入，下面两个循环哪一个执行速度更快?
 <pre>
 <code class="go">
-func BKDRHash(str []byte) uint32 {
-    var seed uint32 = 131; // 31 131 1313 13131 131313 etc..
-    var hash uint32 = 0;
-    for i := 0; i &lt; len(str); i++ {
-        hash = hash * seed + uint32(str[i])
+func Loop1(b <em>testing.B) {
+    var i, j int
+    var array [1024][1024]int
+    for i = 0; i &lt; 1024; i++ {
+        for j = 0; j &lt; 1024; j++ {
+            array[i][j]++
+        }
     }
-    return (hash &amp; 0x7FFFFFFF)
+}
+func Loop2(b </em>testing.B) {
+    var i, j int
+    var array2 [1024][1024]int
+    for i = 0; i &lt; 1024; i++ {
+        for j = 0; j &lt; 1024; j++ {
+            array2[j][i]++
+        }
+    }
 }
 </code>
+</pre>
+使用test bench测试，结果比较明显, Loop1大概是Loop2的五倍！在理解这个问题之前，我们先要清楚计算机系统的Cache体系和设计原理。</p>
+<h3>什么是Cache?</h3>
+<p>Cache Memory也被称为CPU Cache， 是存储系统的组成部分，存放着程序经常使用的指令和数据！Cache可以理解为快设备为了解决访问慢设备延时的预留Buffer，在解决访问延时的同时，尽可能地提高数据传输效率。这里说的快和慢是一个相对概念，比如处理器的频率和主存有交大差异，而磁盘I/O系统把主存作为它的Cache。本文后面所谈的Cache是狭义的Cache，专指CPU处理器主存中间的 L1/L2/L3 Cache！</p>
+<p><img alt="CPU Cache" src="/static/cpu_cache@2x.png" title="CPU Cache">
+CPU Cache架构示意图</p>
+<p>上图示例了一个现代CPU的Cache系统，由L1、L2、L3 三层Cache组成！离处理器越近，速度越快且容量越小！
+每个核都有一个独占的L1 Cache和L2 Cache。 L3Cache 在逻辑上各个核心共享，同时DMA的设备也可以访问！</p>
+<p>以我的mac为例，查看CPU Cache信息
+<pre>
+<code class="go">
+isnodeMacBook-Pro:~ isno$ sysctl machdep.cpu | grep cache
+machdep.cpu.cache.linesize: 64
+machdep.cpu.cache.L2_associativity: 8
+machdep.cpu.cache.size: 256
+</code>
 </pre></p>
-<p>BKDRHash使用线性同余方法来计算散列值，数学表达式实际为:</p>
-<p><img alt="" src="/static/hash-func.png"></p>
-<p>seed 取值为131，算法的因子为ASCII值， 不会大于127，为了提高哈希的密度以及唯一性，要取一个尽量小且大于127的质数。</p>
-<h4>哈希冲突的解决方式</h4>
-<p>通过哈希函数，我们可以将key转换为数组的索引，</p>
-<p>一种比较直接的做法，将一个大小为M的数组每一个元素指向一条链表，通过哈希函数计算出哈希值相同的节点放在同一个单链表中。
-这种做法结合了数组查找便捷，以及链表的空间利用！</p></div>
+<h3>为什么要有Cache？</h3>
+<p>处理器访问内存数据时，首先查询Cache中是否有缓存数据，如果有，则直接返回数据，无需再访问内存；如果没有，则需要把数据从内存中载入到Cache，最后再交给处理器；</p>
+<p>从处理器角度看，Cache是一个比较透明的部件，用于提高访问内存的速度，不需要从编程的逻辑角度去。但从性能上考虑，理解Cache的结构以及设计原理，有助于我们写出性能更好的程序！
+   Cache之所以有效，是因为程序在访问内存时在局部存在一定的概率特征（即程序局部性原理), 这种特征主要表现在两方面：</p>
+<ul>
+<li>Spatial Locality：对于一组访问的数据，其相邻的数据在将来有很高的访问概率!</li>
+<li>Temporal Locality: 在一个短时间窗口内，程序会频繁地访问同一组数据！</li>
+</ul>
+<p>Cache的设计原理正式利用了程序访问内存的这两个局部性特点， 将程序最常使用的指令和数据放在离处理器最近的地方，以便再需要的时候最快的获取这部分数据！</p>
+<p>---- 待续 </p></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
     Posted by <span class="fn">isno</span>
   </span>
-<time datetime="2018-05-14T10:17:00+08:00" pubdate>一 14 五月 2018</time>  <span class="categories">
+<time datetime="2018-08-27T14:54:00+08:00" pubdate>一 27 八月 2018</time>  <span class="categories">
     <a class="category" href="/tag/shu-ju-jie-gou.html">数据结构</a>
   </span>
 </p><div class="sharing">

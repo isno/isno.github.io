@@ -45,6 +45,34 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/cpu-cache.html">理解CPU Cache</a>
+      </h1>
+      <p class="meta"><time datetime="2018-08-27T14:54:00+08:00" pubdate>一 27 八月 2018</time></p>
+</header>
+
+  <div class="entry-content"><p>问题由一个循环优化的代码引入，下面两个循环哪一个执行速度更快?
+<pre>
+<code class="go">
+func Loop1(b <em>testing.B) {
+    var i, j int
+    var array [1024][1024]int
+    for i = 0; i &lt; 1024; i++ {
+        for j = 0; j &lt; 1024; j++ {
+            array[i][j]++
+        }
+    }
+}
+func Loop2(b </em>testing.B) {
+    var i, j int
+    var array2 [1024][1024]int
+    for i = 0; i &lt; 1024 …</code></pre></p></div>
+  <footer>
+    <a rel="full-article" href="/entity/cpu-cache.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/golang-unsafe.html">理解及利用Golang中的unsafe包</a>
       </h1>
       <p class="meta"><time datetime="2018-07-31T15:00:00+08:00" pubdate>二 31 七月 2018</time></p>
@@ -294,20 +322,8 @@ varint(128) = {10000000 10000000}
     <a rel="full-article" href="/entity/bson.html">Read On &crarr;</a>
   </footer>
   		</article>
-  		<article>
-<header>
-      <h1 class="entry-title">
-        <a href="/entity/php-aop.html">AOP在php项目上的应用</a>
-      </h1>
-      <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
-</header>
-
-  <div class="entry-content"><p>我们在谈到设计模式的时候，基本上追求的目标都是都是调用者和被调用者之间的解耦,增强可重用性,以及提高开发效率! 在设计一个复杂项目的时候，如果没有很好的处理主业务与次业务的关系，很容易让程序变的耦合严重，对后续的开发和维护造成一定的成本!</p></div>
-  <footer>
-    <a rel="full-article" href="/entity/php-aop.html">Read On &crarr;</a>
-  </footer>
-  		</article>
 <div class="pagination">
+    <a class="prev" href="/author/isno2.html">&larr; Older</a>
 
   <br />
 </div></div>
@@ -315,6 +331,9 @@ varint(128) = {10000000 10000000}
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/cpu-cache.html">理解CPU Cache</a>
+      </li>
       <li class="post">
           <a href="/entity/golang-unsafe.html">理解及利用Golang中的unsafe包</a>
       </li>
@@ -326,9 +345,6 @@ varint(128) = {10000000 10000000}
       </li>
       <li class="post">
           <a href="/entity/complement.html">补码的原理</a>
-      </li>
-      <li class="post">
-          <a href="/entity/GraphQL-API-Service.html">API后端架构改造分析</a>
       </li>
     </ul>
   </section>

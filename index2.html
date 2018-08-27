@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Google Protobuf应用</title>
+  <title>isno的网络日志</title>
   <meta name="author" content="isno">
   
 
@@ -35,57 +35,31 @@
     <li >
     <a href="/category/php.html">Php</a>
     </li>
-    <li class="active">
+    <li >
     <a href="/category/program.html">Program</a>
     </li>
 </ul></nav>
   <div id="main">
     <div id="content">
-<div>
-  <article class="hentry" role="article">
+<div class="blog-index">
+  		<article>
 <header>
-      <h1 class="entry-title">Google Protobuf应用</h1>
-      <p class="meta"><time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time></p>
+      <h1 class="entry-title">
+        <a href="/entity/php-aop.html">AOP在php项目上的应用</a>
+      </h1>
+      <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
 </header>
 
-  <div class="entry-content"><p>Protocol Buffer是Google 推出的一种轻便高效的结构化数据交换格式，因轻便高效等特性，公司的项目在数据描述以及传输上大量使用了protobuf作为标准！</p>
-<p>在一次和同事的技术讨论中，提到了官方的介绍是protobuf对比xml更小更快更灵活。那么既然官方说占用的存储空间较小，在应用中是否还有必要再进行压缩？</p>
-<p>基于以上的疑问，在这里简单分析一下protobuf的原理，在知其所以然的情况下在后期可以更好的应用！</p>
-<h3>存储空间为什么更小？</h3>
-<p><strong><em>可变长字节码算法 (varint)</em></strong></p>
-<p>通常一个普通的int类型，在计算机中占用4个字节，以int127 在计算机中存储二进制流为例
-<pre>
-<code class="go">
-binary(127) = {00000000 00000000 00000000 01111111}
-</code>
-</pre>
-以上的例子可以明显的看出，对于不大于128的数字，可以只用一个字节来存储。因字节流是连续的，需要再占用一个字节的高位，最终可完成对int类型的紧凑压缩</p>
-<pre>
-<code class="go">
-varint(127) = {01111111} // 最高位0表示,该字节是一个独立的数字
-// 128的最高位是有效值，所以需要再增加一个字节，最高位1表示 下一个字节还属于该int的有效字节
-varint(128) = {10000000 10000000}
-</code>
-</pre>
+  <div class="entry-content"><p>我们在谈到设计模式的时候，基本上追求的目标都是都是调用者和被调用者之间的解耦,增强可重用性,以及提高开发效率! 在设计一个复杂项目的时候，如果没有很好的处理主业务与次业务的关系，很容易让程序变的耦合严重，对后续的开发和维护造成一定的成本!</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/php-aop.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+<div class="pagination">
 
-<p>根据以上的例子可以看出，根据varint算法可以有效的降低存储空间（缺点：最高位是有效值的还要额外增加一个字节）</p>
-<p>总结： Protobuf虽然对数字进行了紧凑压缩，但并未对字符进行压缩设计，对一个字符占比交大的数据进行zip类的压缩依旧很有必要！</p></div>
-    <footer>
-<p class="meta">
-  <span class="byline author vcard">
-    Posted by <span class="fn">isno</span>
-  </span>
-<time datetime="2017-02-13T10:03:00+08:00" pubdate>一 13 二月 2017</time>  <span class="categories">
-    <a class="category" href="/tag/google-protobuf.html">Google-Protobuf</a>
-  </span>
-</p><div class="sharing">
-</div>    </footer>
-
-	
-
-  </article>
-
-</div>
+    <a class="next" href="/index.html">Newer &rarr;</a>
+  <br />
+</div></div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
