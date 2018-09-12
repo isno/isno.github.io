@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>计算机寻址</title>
+  <meta name="author" content="isno">
+  
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/theme/highlight/styles/sunburst.css">
+  <link href="/favicon.png" rel="icon">
+  <link href="/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+  <script src="/theme/js/modernizr-2.0.js"></script>
+  <script src="/theme/js/ender.js"></script>
+  <script src="/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">isno的网络日志</a></h1>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+
+<ul class="main-navigation">
+    <li >
+    <a href="/category/php.html">Php</a>
+    </li>
+    <li class="active">
+    <a href="/category/program.html">Program</a>
+    </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">计算机寻址</h1>
+      <p class="meta"><time datetime="2018-09-12T15:40:00+08:00" pubdate>三 12 九月 2018</time></p>
+</header>
+
+  <div class="entry-content"><h1></h1>
+<p>计算机之父艾伦·图灵在1936年提出图灵机的概念。图灵机是一种抽象的计算模型，可以形象简述为: </p>
+<ol>
+<li>有一条向两端无限延伸的纸条，纸条上有一个个的方格，每个方格可以存储一个字符。</li>
+<li>有一个可以在可以纸条上擦除/写入的读写头。</li>
+<li>有一个控制器，控制读写头的移动和读写操作。</li>
+</ol>
+<p><img alt="turing" src="\static\turing.png"></p>
+<p>在这个抽象的计算模型上， 我们可以看到现代计算机体系冯诺依曼结构的影子，纸条相当于存储器，控制器对应中央处理器。在这条纸条上，找到正确的位置进行存取的过程，就是“内存寻址”。  </p>
+<p>在图灵机的思想模型中，我们可以假设读写头可以按照要求立刻在纸条上对应的方格，但在计算机系统的实现中，处理器对存储器进行有效的内存寻址是必须要解决的问题，也是计算机体系结构核心问题之一！</p>
+<h3>1.1 硬编码</h3>
+<p>1971年11月15日Intel公司发布了自己首款微处理器，型号"4004"。这是一款4位处理器，地址总线带宽12位， 可以使用640Bytes内存, 4004是世界上首款集成微处理器。</p>
+<p>随后不久，Intel公司在1974年4月发布了型号为“8080”的微处理器。这是一款8位处理器，这款处理器有多个累计器，通过累加器配对，可以表示16位的二进制， 因此该处理器可以访问2^16 = 64KiB的内存空间。</p>
+<p>这两款CPU没有任何分段或分页的概念，使用硬编码的方式寻址。
+程序的源码中对于内存的访问都是硬编码的物理地址。
+在这种机制下，CPU接收进程的访存请求，直接将请求地址传入地址总线，然后存取内存,方式简单粗暴!</p>
+<p><img alt="4004" src="\static\Intel_C4004.png"></p>
+<h3>1.2 实模式与内存分段简介</h3>
+<p>1976年5月，Intel开始设计新款微处理器 "8086"，该处理器搭配了20位地址总线，从总线的角度，可寻址2^20 = 1MiB。但遗憾的是限于技术原因该处理器的ALU宽度只有16位, 最大只能寻址 64kb。
+这种情况下，硬编码的寻址方式不再使用，必须要使用另外一种方式解决来扩展CPU的寻址能力，新的解决方案被Intel称为 "内存分段[Segment]"。</p>
+<p>为了支持分段，8086设计了4个16位段寄存器：CS、DS、SS ES分别用于指令、数据、其它和堆栈。分段模式下内存被逻辑分为多个段，段基址是20位，每个段寄存器内保存了一个16位段基址，程序中的地址为16位称为逻辑地址, 获取物理地址可以用公式表明:</p>
+<div class="highlight"><pre>物理地址 = 寄存器段基址*16+逻辑地址
+例:  x0001*16(16进制左移4位进位)+x0002 = x10002 （20位地址）
+</pre></div>
+
+
+<p>这种模式下8086处理器被扩展到1MB的寻址范围！这种带有分段的寻址模式，叫做实模式（Real Mode）</p>
+<p>实模式虽然解决了处理器的寻址能力，但只要获取到段寄存器中的地址，任何程序就可随意操作物理内存。</p>
+<p>此外具体到一个物理地址，实模式下可以有多种表示形式：</p>
+<ul>
+<li>0x0001:0x0000 </li>
+<li>0x0000:0x0010 </li>
+</ul>
+<p>以上都是同一个物理地址。这种歧义也带来无法预估的风险。</p>
+<h3>1.3 保护模式和内存分段的进阶</h3>
+<p>8086处理器采用分段的模式扩展寻址能力，但也存在明显的设计缺陷，无法实现多任务系统。</p>
+<p>为了解决实模式寻址问题，Intel在1982年发布了8086的进化版80286处理器；
+该处理器区别于上一代最大的改进是引入了保护模式。
+保护模式有两个方面的含义:</p>
+<ul>
+<li>虚地址 - 程序可以寻址比实际物理地址空间大得多的虚拟地址</li>
+<li>保护 - 防止寻址越界，保障多任务机制！</li>
+</ul>
+<p>在这种模式下，段式访存得到改进，原段寄存器+偏移量得到的地址不在是实际的物理地址，而是要经过一层额外的转换和检查， 这额外的一层支撑被称之为"描述符" (Descriptor)!</p>
+<p>其中每个段都会有一个数据结构即描述符。
+每个段描述符的长度是8字节，含有3个主要字段：段基地址、段限长和段属性。每个段的地址范围为： 段首 ~ 段首+段长，段长为16位（一个段的长度范围从1Byte 到 2^16Byte, 即不超过 64KiB）。</p>
+<p>80286设计了两个描述符表：</p>
+<ul>
+<li>全局描述符表（GDT，包含了所有的段描述符，全局进程可见！</li>
+<li>局部描述符表(LDT)，进程自己维护独有的描述符表。</li>
+</ul>
+<p>两个描述符表可以表示 2*2^13个内存段。</p>
+<p>结合描述符表，段寄存器内也不再是分段物理地址的高16位，而变成了称之为选择器（Selector）的16位struct， 选择器的结构可以划分为:
+ *  0~1位 访问权限, 低级的访存请求不能访问高权的内存空间。
+ * 2位 段表类型, 用于区分GDT和LDT
+ * 3~15位 段表的描述符表索引</p>
+<p>保护模式的引入解决了访址的安全问题，提供了多任务系统的基础。</p>
+<p>为了兼容之前的处理器，80286可以关闭保护特性工作在实模式下。后续的x86处理器都是在计算机启动时工作在实模式，启动后切换到保护模式。</p>
+<p>由于CPU的位宽问题，应用程序可以访问线性地址空间只能限于64KiB，要想使用大内存，操作也相当繁琐！</p>
+<h3>1.4 80386 页式内存管理</h3>
+<p>1985年10月， Intel推出了80386处理器，该处理器的ALU宽度为32位，地址总线也跟ALU宽度保持同步 也为32位，386处理器的寻址能力达到了 4GiB。</p>
+<p>回顾之前的8086，80286，因为ALU宽度和总线不匹配的问题，不得不引入段寄存器以及后续的保护模式，使得处理器内部设计变得异常复杂！理论上386 处理器的宽度和总线数保持一致，寻址可以设计的非常简洁，遗憾的是为了兼容之前的软硬件，386依旧采用“类似286”的总线结构，保留段寄存器的设计。</p>
+<p>386与286相比，除了在性能和工艺上上的提升外，最主要的变化是为了完整支持多任务系统引入了虚拟内存、分页等概念，是X86体系中的重大里程碑。</p>
+<p>持续至今，虽然制造工艺、处理速度都在不断提升，x86-32系列的架构设计基本都没有太大的变化。</p>
+<h4>虚拟内存与分页</h4>
+<p>386之前CPU采用段式管理内存，这种方式存在几个问题, 想象下这几个场景：内存中已有程序在运行，后有新程序继续申请空间， 如果内存不够如何处理？再或者内存足够的情况下， 正在运行的程序把内存分割成大小不等的碎片，对新程序而言，没有连续的空间，也导致无法加载，此外一个段的大小是64KiB，在i/o 交换上也存在瓶颈问题!</p>
+<h4>虚拟内存</h4>
+<p>在分页、页表映射的基础上,现代操作系统对主存提供了一种抽象概念：虚拟内存。
+虚拟内存为每个进程提供了一个一致、私有的地址空间，它让每个进程产生一种程序独占存储空间的假象！</p>
+<p>使用虚拟寻址，CPU通过MMU将虚拟地址翻译成物理地址，最终访问到真实的物理内存。</p>
+<p><img alt="MMU" src="\static\mmu.png"></p>
+<h4>分页</h4>
+<p>分页实际是建立在分段基础上，简单讲分页就是人为地在逻辑上将连续的内存空间，按照固定大小分成一块一块。对于线性内存来讲，这样切分出来的块叫做[页 Page]；对于物理内存来讲，这样切分出来块叫[页帧 Page Frame]。</p>
+<p>总结起来，分页机制将线性内存分为若干页，将物理内存分为若干帧，并建立从页到帧的映射关系。这个映射关系，是一个「多对一」的映射。</p>
+<p>内存分页机制，解决两个问题:</p>
+<ul>
+<li>内存被分割成碎片造成物理地址上的不连续</li>
+<li>以段为单位交换 I/O 负载过大</li>
+</ul>
+<p>分页的工作机制页帧映射，就是当 CPU 取得一个线性地址时，将它映射到正确的物理地址上面。</p>
+<p>映射的方式是建立一张足够大的表（称为页表 Page Table， 页面元素被称为 Page Table Entry）：</p>
+<ul>
+<li>表中的 key 由线性地址的首 20 位计算得到（或者干脆就是它自己）。</li>
+<li>表中的 value 则是对应页帧在物理中的起始地址以及权限控制等信息。</li>
+</ul>
+<p><img alt="Page Table" src="\static\page-table.jpg"></p>
+<p><em>CPU每次进行地址翻译时都需要经过PTE, 所以如果想控制内存系统的访问，可以在PTE控制额外的许可位（例如读写权限、内核权限等），指令违反许可CPU会触发保护机制，产生一个“段错误（Segmentation Fault）”的异常！</em></p>
+<h5>页查找缺页</h5>
+<p>当进程调用malloc的函数时，并未实际分配物理内存，而是仅分配了一段线性地址空间，在实际访问该页时，在进行物理内存分配， 这种设计可以节省内存的开销，在有限的内存下可以运行更多的程序，从逻辑上扩展了内存空间！</p>
+<p>由于CPU无法与磁盘进行交互，CPU做所的一切运算，都是通过CPU Cache间接与内存进行操作，若CPU请求的数据在物理内存不存在，CPU会产生 [缺页错误 Page Fault]，在内核处理缺页错误时，系统进行磁盘上数据的读写交换操作，这种缺页异常时，才将页面交换到内存的策略称为按需页面调度。</p>
+<p>回到分页的结构中，PTE中两个信息: 有效位、脏位</p>
+<p>有效位表示分页是否被缓存到物理内存中，未缓存到物理内存就是缺页标识!</p>
+<p>缺页的错误可以分为正常情况下分两类:</p>
+<ul>
+<li>硬缺页错误 major page fault</li>
+<li>软缺页错误 minor page fault</li>
+</ul>
+<p>CPU在引用一个地址发生缺页错误时，内核根据错误类型进行不同的处理，如软缺页错误:物理内存中已有一个页帧，但与页并未建立关系,这种情况下 PageFaultHander(内核缺页异常处理)会操作MMU建立两者之间相应的映射关系。
+ 若此时不在物理内存中，PageFaultHander指示CPU从已经打开的磁盘文件读取相应的内存交换到物理内存，最后交由MMU建立页帧和页的映射关系!</p>
+<h4>swap</h4>
+<p>简单讲一下 swap，
+局部性原则保证了在任意时刻，程序将趋向于在一个较小的活动页面（active page）集合上工作，这个集合被称为工作集 working set。这个集合的pages数是随运行情况进行变化，可能变大，也可能缩小。扩大是指申请访问更大的内存，缩小是指内存不足，需要将某些干净的page Free掉或者把脏页swap到交换分区。</p>
+<p>缩小working set遵循lru算法，pte结构中存放这页面读写访问情况，如果是干净页，则直接Free，如果是脏页，那么进行写盘，swap到交换分区。</p>
+<h5>二级页表</h5>
+<p>在分页策略基础上，我们考虑一种比较极端的情况， 假设每个进程都申请了4GiB的空间。按照每页4KiB来计算，共需要维护1024个页帧信息，每个页帧信息4Bytes。这样每个进程的页表就需要4MiB，对于需要高速数据交换的CPU来讲，这个量过大， 必须设计一种新的方法应对这种情况.</p>
+<p>解决方法是使用层次结构的页表, 这里以两级页面为例（多级设计相似）。</p>
+<p>增加一个4KiB的页目录表，页目录每个PTE对应二级页表的位置。二级页表与一级页表结构相同对应虚拟内存信息。</p>
+<p>这种架构类似B-Tree，有效减缓了内存请求</p>
+<ul>
+<li>如果目录PTE为空，那么相应的二级页表也不会存在.</li>
+<li>只有目录表持续缓存在内存中，虚拟内存系统在需要时缓存二级页表，避免像一级页面一样全部缓存在内存中。</li>
+</ul>
+<h5>高速缓存</h5>
+<p>与一级页表相比，二级页表从线性地址转换到物理地址，需要两次查表，交换8KiB的数据，对于CPU高速访存操作来讲，这样的交换无法满足性能要求。</p>
+<p>针对性能问题，386增加了高速缓存 (CPU Cache), 处理器访问内存数据时，首先查询Cache中是否有缓存数据，如果有，则直接返回数据，无需再访问内存；如果没有，则需要把数据从内存中载入到Cache，最后再交给处理器；</p>
+<p>Cache Memory也被称为CPU Cache， 是存储系统的组成部分，存放着程序经常使用的指令和数据！Cache可以理解为快设备为了解决访问慢设备延时的预留Buffer，在解决访问延时的同时，尽可能地提高数据传输效率。</p>
+<p><img alt="CPU Cache" src="\static\cpu-cache.png"></p>
+<p>上图示例了一个现代CPU的Cache系统，由L1、L2、L3 三层Cache组成！离处理器越近，速度越快且容量越小！ 每个核都有一个独占的L1 Cache和L2 Cache。 L3Cache 在逻辑上各个核心共享，同时DMA的设备也可以访问！</p>
+<p>从处理器角度看，Cache是一个比较透明的部件，用于提高访问内存的速度，不需要从编程的逻辑角度去。但从性能上考虑，理解Cache的结构以及设计原理，有助于我们写出性能更好的程序！ </p>
+<p>Cache之所以有效，是因为程序在访问内存时在局部存在一定的概率特征（即程序局部性原理), 这种特征主要表现在两方面：</p>
+<ul>
+<li>
+<p>Spatial Locality：对于一组访问的数据，其相邻的数据在将来有很高的访问概率!</p>
+</li>
+<li>
+<p>Temporal Locality: 在一个短时间窗口内，程序会频繁地访问同一组数据！</p>
+</li>
+</ul>
+<p>Cache的设计原理正式利用了程序访问内存的这两个局部性特点， 将程序最常使用的指令和数据放在离处理器最近的地方，以便再需要的时候最快的获取这部分数据！</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">isno</span>
+  </span>
+<time datetime="2018-09-12T15:40:00+08:00" pubdate>三 12 九月 2018</time>  <span class="categories">
+    <a class="category" href="/tag/shu-ju-jie-gou.html">数据结构</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+
+	
+
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/addressing.html">计算机寻址</a>
+      </li>
+      <li class="post">
+          <a href="/entity/cpu-cache.html">理解CPU Cache</a>
+      </li>
+      <li class="post">
+          <a href="/entity/golang-unsafe.html">理解及利用Golang中的unsafe包</a>
+      </li>
+      <li class="post">
+          <a href="/entity/hash-table.html">Map结构的实现原理(-)</a>
+      </li>
+      <li class="post">
+          <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="/category/php.html">php</a></li>
+        <li><a href="/category/program.html">program</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="/tag/google-protobuf.html">Google-Protobuf</a>,    <a href="/tag/shu-ju-jie-gou.html">数据结构</a>,    <a href="/tag/encoding.html">encoding</a>,    <a href="/tag/distributed.html">distributed</a>,    <a href="/tag/redis.html">redis</a>,    <a href="/tag/zi-fu-ji.html">字符集</a>,    <a href="/tag/golang.html">Golang</a>,    <a href="/tag/graphql.html">graphQL</a>,    <a href="/tag/aop.html">aop</a>,    <a href="/tag/dnsmasq.html">dnsmasq</a>,    <a href="/tag/bson.html">bson</a>,    <a href="/tag/php.html">php</a>  </section>
+
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2014-2018  - isno -
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+<!----></body>
+<script src="/theme/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</html>

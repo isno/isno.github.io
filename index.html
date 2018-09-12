@@ -45,6 +45,34 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/addressing.html">计算机寻址</a>
+      </h1>
+      <p class="meta"><time datetime="2018-09-12T15:40:00+08:00" pubdate>三 12 九月 2018</time></p>
+</header>
+
+  <div class="entry-content"><h1></h1>
+<p>计算机之父艾伦·图灵在1936年提出图灵机的概念。图灵机是一种抽象的计算模型，可以形象简述为: </p>
+<ol>
+<li>有一条向两端无限延伸的纸条，纸条上有一个个的方格，每个方格可以存储一个字符。</li>
+<li>有一个可以在可以纸条上擦除/写入的读写头。</li>
+<li>有一个控制器，控制读写头的移动和读写操作。</li>
+</ol>
+<p><img alt="turing" src="\static\turing.png"></p>
+<p>在这个抽象的计算模型上， 我们可以看到现代计算机体系冯诺依曼结构的影子，纸条相当于存储器，控制器对应中央处理器。在这条纸条上，找到正确的位置进行存取的过程，就是“内存寻址”。  </p>
+<p>在图灵机的思想模型中，我们可以假设读写头可以按照要求立刻在纸条上对应的方格，但在计算机系统的实现中，处理器对存储器进行有效的内存寻址是必须要解决的问题，也是计算机体系结构核心问题之一！</p>
+<h3>1.1 硬编码</h3>
+<p>1971年11月15日Intel公司发布了自己首款微处理器，型号"4004"。这是一款4位处理器，地址总线带宽12位， 可以使用640Bytes内存, 4004是世界上首款集成微处理器。</p>
+<p>随后不久，Intel公司在1974年4月发布了型号为“8080”的微处理器。这是一款8位处理器，这款处理器有多个累计器，通过累加器配对，可以表示16位的二进制， 因此该处理器可以访问2^16 = 64KiB的内存空间。</p>
+<p>这两款CPU没有任何分段或分页的概念，使用硬编码的方式寻址。
+程序的源码中对于内存的访问都是硬编码的物理地址。
+在这种机制下，CPU接收进程的访存请求 …</p></div>
+  <footer>
+    <a rel="full-article" href="/entity/addressing.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/cpu-cache.html">理解CPU Cache</a>
       </h1>
       <p class="meta"><time datetime="2018-08-27T14:54:00+08:00" pubdate>一 27 八月 2018</time></p>
@@ -299,29 +327,6 @@ varint(128) = {10000000 10000000}
     <a rel="full-article" href="/entity/character.html">Read On &crarr;</a>
   </footer>
   		</article>
-  		<article>
-<header>
-      <h1 class="entry-title">
-        <a href="/entity/bson.html">BSON原理解析</a>
-      </h1>
-      <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
-</header>
-
-  <div class="entry-content"><p>BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!</p>
-<p><strong>1.bson的类型包括基础类型和扩展类型</strong></p>
-<ol>
-<li>基础类型 byte, int32, int64, double(存储时会转换为int64)</li>
-<li>扩展类型包括 map, array, binary data</li>
-</ol>
-<p>bson对每种类型用16进制做了一个归类，以便于转换存储</p>
-<p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
-<p><strong>2.bson的存储结构</strong></p>
-<p>如果说bson是一个document，那么该document是以下结构进行存储</p>
-<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value …</em></p></div>
-  <footer>
-    <a rel="full-article" href="/entity/bson.html">Read On &crarr;</a>
-  </footer>
-  		</article>
 <div class="pagination">
     <a class="prev" href="/index2.html">&larr; Older</a>
 
@@ -331,6 +336,9 @@ varint(128) = {10000000 10000000}
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="/entity/addressing.html">计算机寻址</a>
+      </li>
       <li class="post">
           <a href="/entity/cpu-cache.html">理解CPU Cache</a>
       </li>
@@ -342,9 +350,6 @@ varint(128) = {10000000 10000000}
       </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
-      </li>
-      <li class="post">
-          <a href="/entity/complement.html">补码的原理</a>
       </li>
     </ul>
   </section>

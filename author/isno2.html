@@ -45,6 +45,29 @@
   		<article>
 <header>
       <h1 class="entry-title">
+        <a href="/entity/bson.html">BSON原理解析</a>
+      </h1>
+      <p class="meta"><time datetime="2015-01-05T16:00:28+08:00" pubdate>一 05 一月 2015</time></p>
+</header>
+
+  <div class="entry-content"><p>BSON是专为mongodb而设计的一种类似json的二进制存储格式。Mongodb数据存储和对外界的网络传输都是以bson为基础!</p>
+<p><strong>1.bson的类型包括基础类型和扩展类型</strong></p>
+<ol>
+<li>基础类型 byte, int32, int64, double(存储时会转换为int64)</li>
+<li>扩展类型包括 map, array, binary data</li>
+</ol>
+<p>bson对每种类型用16进制做了一个归类，以便于转换存储</p>
+<p>eg. \x02 =&gt; string, \x03 =&gt; document, x\10=&gt; int32 等等 <a href="http://bsonspec.org/spec.html" title="http://bsonspec.org/spec.html">http://bsonspec.org/spec.html</a>(官方文档)</p>
+<p><strong>2.bson的存储结构</strong></p>
+<p>如果说bson是一个document，那么该document是以下结构进行存储</p>
+<p><em>[4]byte(length) + byte(element.type) + []byte(element.key) + byte(0) + []byte(element.value …</em></p></div>
+  <footer>
+    <a rel="full-article" href="/entity/bson.html">Read On &crarr;</a>
+  </footer>
+  		</article>
+  		<article>
+<header>
+      <h1 class="entry-title">
         <a href="/entity/php-aop.html">AOP在php项目上的应用</a>
       </h1>
       <p class="meta"><time datetime="2014-12-13T10:38:54+08:00" pubdate>六 13 十二月 2014</time></p>
@@ -65,6 +88,9 @@
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="/entity/addressing.html">计算机寻址</a>
+      </li>
+      <li class="post">
           <a href="/entity/cpu-cache.html">理解CPU Cache</a>
       </li>
       <li class="post">
@@ -75,9 +101,6 @@
       </li>
       <li class="post">
           <a href="/entity/distributed-consistency.html">一.构建分布式一致性存储系统 - 协议篇</a>
-      </li>
-      <li class="post">
-          <a href="/entity/complement.html">补码的原理</a>
       </li>
     </ul>
   </section>
